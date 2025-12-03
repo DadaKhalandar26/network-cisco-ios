@@ -1,0 +1,3 @@
+---
+compliance_baseline_template: "baseline_config.j2"
+compliance_mode: "audit"   # audit or enforce

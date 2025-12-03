@@ -1,0 +1,18 @@
+# collections/requirements.yml
+# Pin collection versions for reproducible EE builds.
+# Replace the version values with the exact versions you valida environment.
+collections:
+  - name: ansible.netcommon
+    version: "3.3.0"
+  - name: community.network
+    version: "5.0.0"
+  - name: cisco.ios
+    version: "4.2.0"
+  - name: cisco.iosxr
+    version: "1.2.0"
+  - name: cisco.nxos
+    version: "3.3.0"
+  - name: arista.eos
+    version: "4.1.0"
+  - name: junipernetworks.junos
+    version: "3.6.0"

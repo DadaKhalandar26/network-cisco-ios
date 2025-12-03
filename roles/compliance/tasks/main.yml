@@ -1,0 +1,31 @@
+---
+- name: Render intended baseline config
+  template:
+    src: "{{ compliance_baseline_template }}"
+    dest: "/tmp/{{ inventory_hostname }}-baseline.cfg"
+
+- name: Gather running config
+  cisco.ios.ios_command:
+    commands: show running-config
+  register: running_cfg
+
+- name: Save running config to file
+  copy:
+    content: "{{ running_cfg.stdout[0] }}"
+    dest: "/tmp/{{ inventory_hostname }}-running.cfg"
+
+- name: Compare running vs baseline
+  community.general.diff:
+    src: "/tmp/{{ inventory_hostname }}-baseline.cfg"
+    dest: "/tmp/{{ inventory_hostname }}-running.cfg"
+  register: cfg_diff
+
+- name: Report compliance drift
+  debug:
+    msg: "Compliance drift detected on {{ inventory_hostname }}: {{ cfg_diff.diff }}"
+  when: cfg_diff.changed
+
+- name: Fail if drift detected (enforce mode)
+  fail:
+    msg: "Device {{ inventory_hostname }} is out of compliance!"
+  when: cfg_diff.changed and compliance_mode == "enforce"

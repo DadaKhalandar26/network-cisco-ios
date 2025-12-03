@@ -1,0 +1,14 @@
+---
+- name: Gather running config
+  cisco.ios.ios_command:
+    commands: show running-config
+  register: running_cfg
+
+- name: Save backup locally
+  copy:
+    content: "{{ running_cfg.stdout[0] }}"
+    dest: "{{ backup_location }}/{{ inventory_hostname }}-running-{{ ansible_date_time.iso8601 }}.cfg"
+
+- name: Notify backup saved
+  debug:
+    msg: "Backup saved for {{ inventory_hostname }} at {{ backup_location }}"

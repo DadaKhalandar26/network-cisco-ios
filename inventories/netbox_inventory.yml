@@ -1,0 +1,11 @@
+---
+plugin: netbox
+api_endpoint: https://netbox.example.com
+token: "{{ lookup('env', 'NETBOX_TOKEN') }}"
+validate_certs: true
+config_context: true
+group_by:
+  - device_roles
+  - site
+compose:
+  ansible_host: primary_ip.address

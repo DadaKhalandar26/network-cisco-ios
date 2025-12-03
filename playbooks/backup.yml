@@ -1,0 +1,11 @@
+---
+- name: Cisco IOS Backup Running Config
+  hosts: all
+  gather_facts: no
+  serial: 50
+  tasks:
+    - name: Run backup role
+      include_role:
+        name: network-cisco-ios.roles.backup
+      vars:
+        backup_location: "{{ backup_location | default('/tmp/backups') }}"

@@ -1,0 +1,9 @@
+---
+- name: Deploy login banner to Cisco IOS
+  hosts: ios_devices
+  gather_facts: no
+  roles:
+    - role: network-cisco-ios.roles.config
+      vars:
+        banner_file: banner.j2
+        commit: true

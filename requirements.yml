@@ -1,11 +1,11 @@
 # roles/requirements.yml
 # Use this to pull shared roles into the repo/EE during CI or EE build.
 # Pin to tags/commits for stability.
-- src: git+https://github.com/yourorg/platform.git
-  name: platform
-  scm: git
-  version: "v1.2.0"   # replace with the platform tag/commit you validated
+# - src: git+https://github.com/yourorg/platform.git
+#   name: platform
+#   scm: git
+#   version: "v1.2.0"   # replace with the platform tag/commit you validated
 
-# Example community role (pin to a known version)
-- src: geerlingguy.ntp
-  version: "4.0.0"
+# # Example community role (pin to a known version)
+# - src: geerlingguy.ntp
+#   version: "4.0.0"

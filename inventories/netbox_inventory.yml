@@ -1,11 +1,16 @@
 ---
-plugin: netbox
-api_endpoint: https://netbox.example.com
+plugin: netbox.netbox.nb_inventory
+api_endpoint: http://192.168.0.200:8000/
 token: "{{ lookup('env', 'NETBOX_TOKEN') }}"
 validate_certs: true
 config_context: true
 group_by:
+  - sites
+  - region
   - device_roles
-  - site
+  - device_types
+  - platforms
+  - tags
+  - tenant
 compose:
   ansible_host: primary_ip.address

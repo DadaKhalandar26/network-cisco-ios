@@ -17,3 +17,4 @@ collections:
     version: ">=5.0.0"
   - name: junipernetworks.junos
     version: ">=5.0.0"
+roles: []

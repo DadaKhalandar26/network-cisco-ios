@@ -3,5 +3,5 @@ device_hostname: "{{ inventory_hostname }}"
 interfaces: []
 vlans: []
 ntp_servers: []
-commit: false
+config_commit: false
 backup_before_change: true

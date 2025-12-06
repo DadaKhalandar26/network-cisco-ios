@@ -1,7 +1,7 @@
 ---
-device_hostname: "{{ inventory_hostname }}"
-interfaces: []
-vlans: []
-ntp_servers: []
+config_device_hostname: "{{ inventory_hostname }}"
+config_interfaces: []
+config_vlans: []
+config_ntp_servers: []
 config_commit: false
 backup_before_change: true

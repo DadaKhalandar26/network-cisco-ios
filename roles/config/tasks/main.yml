@@ -29,5 +29,5 @@
 - name: Configure login banner from template
   ios_config:
     src: banner.j2
-    multiline_delimiter: "c"
+    multiline_delimiter: "@"
     save_when: modified

@@ -3,7 +3,7 @@
   hosts: cisco-ios
   gather_facts: no
   roles:
-    - role: config
+    - roles: config
       vars:
         banner_file: banner.txt
         commit: true

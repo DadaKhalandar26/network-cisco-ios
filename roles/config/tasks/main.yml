@@ -25,3 +25,8 @@
   ansible.builtin.fail:           
     msg: "Compliance drift on {{ inventory_hostname }}: {{ cfg_diff.diff }}"
   when: cfg_diff.changed
+
+- name: Configure login banner from file
+  ios_config:
+    src: banner.txt
+    save_when: modified

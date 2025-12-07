@@ -5,5 +5,5 @@
   roles:
     - role: config
       vars:
-        banner_file: banner.txt
+        banner_file: banner.j2
         commit: true

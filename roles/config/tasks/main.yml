@@ -28,20 +28,5 @@
 
 - name: Configure login banner from template
   ios_config:
-    lines:
-      - |
-        banner login
-        ***********************************************************************
-        *                                                                     *
-        *   WARNING: Authorized Access Only                                   *
-        *                                                                     *
-        *   This device is managed by                                         *
-        *   B S Dada Khalandar                                                *
-        *   for the Network Automation Core Project                           *
-        *                                                                     *
-        *   All connections are monitored and logged.                         *
-        *   Unauthorized access is strictly prohibited and may result in      *
-        *   disciplinary action or prosecution.                               *
-        *                                                                     *
-        ***********************************************************************
+    src: banner.j2
     save_when: modified

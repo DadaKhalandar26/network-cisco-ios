@@ -3,6 +3,8 @@
 # Replace the version values with the exact versions you valida environment.
 ---
 collections:
+  - name: netbox.netbox
+    version: ">=3.10.0"
   - name: ansible.netcommon
     version: ">=5.0.0"
   - name: community.network
@@ -16,4 +18,8 @@ collections:
   - name: arista.eos
     version: ">=5.0.0"
   - name: junipernetworks.junos
+    version: ">=5.0.0"
+  - name: community.network
+    version: ">=5.0.0"
+  - name: ansible.netcommon
     version: ">=5.0.0"

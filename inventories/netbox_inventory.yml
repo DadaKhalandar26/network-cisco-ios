@@ -11,6 +11,6 @@ group_by:
   - device_types
   - platforms
   - tags
-  - tenant
+  - tenants
 compose:
   ansible_host: primary_ip.address

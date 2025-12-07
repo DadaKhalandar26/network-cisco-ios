@@ -1,6 +1,6 @@
 ---
 - name: Deploy login banner to Cisco IOS
-  hosts: cisco-ios
+  hosts: platforms_cisco-ios
   gather_facts: no
   roles:
     - role: config

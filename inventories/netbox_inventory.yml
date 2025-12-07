@@ -13,4 +13,4 @@ group_by:
   - tags
   - tenants
 compose:
-  ansible_host: primary_ip.address
+  ansible_host: primary_ip4.address

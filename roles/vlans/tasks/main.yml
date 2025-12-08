@@ -1,0 +1,30 @@
+---
+# roles/vlan/tasks/main.yml
+- name: Fail if vlans variable is not defined or empty
+  ansible.builtin.fail:
+    msg: "The 'vlans' variable is not defined or is empty. Define it in defaults, group_vars, or pass it to the role."
+  when: vlans is not defined or vlans | length == 0
+
+- name: Render VLAN config from template into a variable
+  ansible.builtin.set_fact:
+    vlans_cfg: "{{ lookup('template', 'vlans.j2') }}"
+  vars:
+    ansible_python_interpreter: "{{ ansible_python_interpreter | default(omit) }}"
+
+- name: Push VLAN configuration to device (from rendered template)
+  cisco.ios.ios_config:
+    lines: "{{ vlans_cfg.splitlines() }}"
+    backup: yes
+    save_when: modified
+  when: vlans_cfg is defined and vlans_cfg | length > 0
+
+- name: Verify VLAN configuration (show vlan brief)
+  cisco.ios.ios_command:
+    commands:
+      - show vlan brief
+  register: vlan_show
+  changed_when: false
+
+- name: Display VLAN verification output
+  ansible.builtin.debug:
+    var: vlan_show.stdout_lines

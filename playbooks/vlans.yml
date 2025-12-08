@@ -1,0 +1,9 @@
+---
+- name: Deploy VLANs via role to Cisco IOS
+  hosts: tenants_test-env
+  gather_facts: no
+  roles:
+    - role: vlans
+      vars:
+        template_file: vlans.j2
+        commit: true

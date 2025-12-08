@@ -1,0 +1,12 @@
+{# roles/vlan/templates/vlans.j2 - renders VLAN CLI from variable 'vlans' #}
+{% for v in vlans %}
+{% set state = v.state | default('present') %}
+{% if state == 'present' %}
+vlan {{ v.id }}
+{% if v.name is defined and v.name | trim | length > 0 %}
+ name {{ v.name }}
+{% endif %}
+{% elif state == 'absent' %}
+no vlan {{ v.id }}
+{% endif %}
+{% endfor %}

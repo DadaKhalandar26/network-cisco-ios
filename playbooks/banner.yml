@@ -1,6 +1,6 @@
 ---
 - name: Deploy login banner to Cisco IOS
-  hosts: 192.168.0.61
+  hosts: tenants_test-env
   gather_facts: no
   roles:
     - role: config

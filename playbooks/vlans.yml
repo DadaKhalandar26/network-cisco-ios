@@ -3,7 +3,7 @@
   hosts: tenants_test-env
   gather_facts: no
   
-  task:
+  tasks:
     - name: Show vlans variable
       debug:
         var: vlans

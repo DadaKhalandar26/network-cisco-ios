@@ -1,7 +1,4 @@
 ---
-config_device_hostname: "{{ inventory_hostname }}"
-config_interfaces: []
-config_vlans: []
-config_ntp_servers: []
-config_commit: false
-backup_before_change: true
+domain_name: network-automation-core.com
+syslog_server: 10.10.10.1
+ntp_server: 10.101.10.1

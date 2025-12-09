@@ -11,12 +11,7 @@
 
 - name: Configure login banner
   ios_config:
-    lines: "{{ lookup('template', 'banner.j2') | splitlines }}"
-
-- name: Configure local admin user
-  ios_config:
-    lines:
-      - username {{ admin_user }} privilege 15 secret {{ admin_pass }}
+    lines: "{{ lookup('file', 'banner.txt') }}"
 
 - name: Enable SSH and disable telnet
   ios_config:

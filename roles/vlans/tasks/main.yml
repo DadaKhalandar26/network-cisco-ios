@@ -1,18 +1,22 @@
 ---
 #roles/vlan/tasks/main.yml
-- name: Build VLAN config from host_vars
-  set_fact:
-    vlan_config: |
-      {% for v in vlans %}
-      - vlan_id: {{ v.id }}
-        name: {{ v.name }}
-        state: {{ 'active' if v.state == 'present' else 'suspend' }}
-      {% endfor %}
+- name: Fail if vlans variable is not defined or empty
+  fail:
+    msg: "The 'vlans' variable is not defined or is empty. Define it in host_vars, group_vars, or pass it to the role."
+  when: vlans is not defined or vlans | length == 0
 
-- name: Apply VLANs using ios_vlans
-  cisco.ios.ios_vlans:
-    config: "{{ vlan_config | from_yaml }}"
-    state: merged
+- name: Render VLAN config locally using Jinja2
+  template:
+    src: "{{ template_file | default('vlans.j2') }}"
+    dest: "/tmp/{{ inventory_hostname }}-vlans.cfg"
+  delegate_to: localhost
+  run_once: true
+
+- name: Show rendered VLAN config
+  debug:
+    msg: "{{ lookup('file', '/tmp/' ~ inventory_hostname ~ '-vlans.cfg') }}"
+  delegate_to: localhost
+  run_once: true
 
 # - name: Show backup path returned by module
 #   debug:

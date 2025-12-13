@@ -1,4 +1,10 @@
 ---
+- name: Configure login banner using ios_banner
+  cisco.ios.ios_banner:
+    banner: login
+    text: "{{ lookup('file', './templates/banner.j2') }}"
+    state: present
+
 # - name: Render intended config
 #   ansible.builtin.template:        
 #     src: base_config.j2
@@ -25,9 +31,3 @@
 #   ansible.builtin.fail:           
 #     msg: "Compliance drift on {{ inventory_hostname }}: {{ cfg_diff.diff }}"
 #   when: cfg_diff.changed
-
-- name: Configure login banner using ios_banner
-  cisco.ios.ios_banner:
-    banner: login
-    text: "{{ lookup('file', './templates/banner.j2') }}"
-    state: present

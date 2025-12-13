@@ -2,6 +2,10 @@
 - name: Deploy VLANs via role to Cisco IOS
   hosts: tenants_test-env
   gather_facts: no
+
+  vars_files:
+    - "host_vars/{{ inventory_hostname }}.yml"
+  
   roles:
     - role: vlans
       vars:

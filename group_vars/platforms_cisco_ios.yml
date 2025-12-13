@@ -3,3 +3,4 @@ ansible_network_os: cisco.ios.ios
 ansible_command_timeout: 120
 ansible_timeout: 60
 ansible_port: 22
+config_domain_name: "network-automation-core.com"

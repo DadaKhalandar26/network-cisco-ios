@@ -4,9 +4,9 @@
   gather_facts: no
   
   roles:
-    role: logging_snmp
-    vars:
-      template_file: 
-        - logging.j2
-        - snmp.j2
-      commit: true
+    - role: logging_snmp
+      vars:
+        template_file: 
+          - logging.j2
+          - snmp.j2
+        commit: true

@@ -1,0 +1,14 @@
+snmp_group_name: NETOPS
+snmp_user: snmpadmin
+snmp_auth_algo: sha
+snmp_auth_key: StrongAuthKey
+snmp_priv_algo: aes 256
+snmp_priv_key: StrongPrivKey
+snmp_view: READONLY
+snmp_acl: SNMP-ACL
+nms_hosts:
+  - 10.10.40.100
+  - 10.10.40.101
+logging_hosts:
+  - 10.10.30.50
+  - 10.10.30.51

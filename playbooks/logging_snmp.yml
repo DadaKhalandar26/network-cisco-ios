@@ -2,6 +2,9 @@
 - name: Deploy SNMPv3 config
   hosts: tenants_test-env
   gather_facts: no
+
+  vars_files:
+    - "../group_vars/all.yml"
   
   roles:
     - role: logging_snmp

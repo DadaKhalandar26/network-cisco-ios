@@ -1,6 +1,6 @@
 snmp-server view {{ snmp_view }} iso included
 snmp-server group {{ snmp_group_name }} v3 priv read {{ snmp_view }}
-snmp-server user {{ snmp_user }} {{ snmp_group_name }} v3 auth {{ snmp_auth_algo }} {{ snmp_auth_key }} priv {{ snmp_priv_algo }} {{ snmp_priv_key }}
+snmp-server user {{ snmp_user }} {{ snmp_group_name }} v3 auth {{ snmp_auth_algo }} {{ snmp_auth_key }} priv {{ snmp_priv_algo }} {{ snmp_priv_key }} 
 
 ip access-list standard {{ snmp_acl }}
  permit 10.10.40.0 0.0.0.255

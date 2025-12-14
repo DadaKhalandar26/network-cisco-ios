@@ -4,7 +4,7 @@ ansible_network_os: cisco.ios.ios
 ansible_command_timeout: 120
 ansible_timeout: 60
 ansible_port: 22
-snmp_location: test_location-02
+snmp_location: "test_location-02"
 vlans:
   - id: 101
     name: 101.101.101.0/24_TEST_DATA

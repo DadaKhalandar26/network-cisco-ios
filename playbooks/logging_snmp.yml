@@ -1,6 +1,6 @@
 ---
 - name: Deploy SNMPv3 config
-  hosts: device_types_i86bi_linuxl2-adventerprisek9-m:&tenants_test-env
+  hosts: tenants_test-env
   gather_facts: no
   roles:
     - logging_snmp

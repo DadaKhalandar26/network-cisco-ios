@@ -12,9 +12,10 @@
   tasks:
     - name: Upload config files
       ansible.builtin.copy:
-        src: "/tmp/"
-        dest: "/ios/"
+        src: "/tmp/{{ inventory_hostname }}.cfg"
+        dest: "/ios/backups/{{ inventory_hostname }}.cfg"
         mode: '0644'
+        directory_mode: '0755
 
 - name: Cleanup local temp file
   delegate_to: localhost

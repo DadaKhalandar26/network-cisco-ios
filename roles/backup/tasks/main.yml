@@ -8,13 +8,11 @@
 
 - name: Upload backup to SFTP server
   delegate_to: cloud
-  ansible.builtin.sftp:
-    src: "{{ backup_local_tmp }}"
-    dest: "{{ backup_remote_dir }}/{{ inventory_hostname }}-{{ backup_timestamp }}.cfg"
-    mode: put
-    username: "{{ backup_sftp_user }}"
-    password: "{{ backup_sftp_password }}"
-    host: "{{ backup_sftp_host }}"
+  ansible.builtin.command: >
+    scp {{ backup_local_tmp }}
+    {{ ansible_user }}@{{ backup_sftp_host }}:
+    {{ backup_remote_dir }}/{{ inventory_hostname }}-{{ backup_timestamp }}.cfg
+  no_log: true
 
 - name: Cleanup local temp file
   delegate_to: localhost

@@ -8,6 +8,7 @@
 
 - name: Upload backup to SFTP server
   delegate_to: localhost
+  connection: local
   ansible.builtin.command: >
     scp {{ backup_local_tmp }}
     {{ ansible_user }}@{{ backup_sftp_host }}:

@@ -6,17 +6,15 @@
       filename: "{{ inventory_hostname }}.cfg"
       dir_path: /tmp
 
-- name: Upload backup to SFTP server
-  delegate_to: 192.168.29.125
-  ansible.builtin.copy:
-    src: "{{ backup_local_tmp }}"
-    dest: "{{ backup_remote_dir }}/{{ inventory_hostname }}-{{ timestamp }}.cfg"
-  vars:
-    ansible_host: 192.168.29.125
-    ansible_user: "{{ backup_sftp_user }}"
-    ansible_password: "{{ lookup('env', 'SFTP_PASSWORD') }}"
-    ansible_connection: ssh
-    ansible_port: 22
+- name: Upload backups to SFTP
+  hosts: sftp
+  gather_facts: no
+  tasks:
+    - name: Upload config files
+      ansible.builtin.copy:
+        src: "/tmp/"
+        dest: "/ios/"
+        mode: '0644'
 
 - name: Cleanup local temp file
   delegate_to: localhost

@@ -15,7 +15,8 @@
         src: "/tmp/{{ inventory_hostname }}.cfg"
         dest: "/ios/backups/{{ inventory_hostname }}.cfg"
         mode: '0644'
-        directory_mode: '0755
+        directory_mode: '0755'
+      loop: "{{ groups['ansible_backup_hosts'] }}"
 
 - name: Cleanup local temp file
   delegate_to: localhost

@@ -1,3 +1,13 @@
 ---
-backup_location: "/tmp/backups"
-backup_before_change: true
+# Temporary local file
+backup_local_tmp: "/tmp/{{ inventory_hostname }}.cfg"
+
+# Remote SFTP path (inside chroot)
+backup_remote_dir: "/ios"
+
+# SFTP connection details
+backup_sftp_host: 192.168.29.125
+backup_sftp_user: backupuser
+
+# Timestamp format
+backup_timestamp: "{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"

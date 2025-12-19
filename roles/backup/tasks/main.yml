@@ -9,15 +9,15 @@
 - name: Upload backup to SFTP server
   delegate_to: localhost
   ansible.builtin.sftp:
-    src: "{{ local_tmp }}"
-    dest: "/ios/{{ inventory_hostname }}-{{ timestamp }}.cfg"
+    src: "{{ backup_local_tmp }}"
+    dest: "{{ backup_remote_dir }}/{{ inventory_hostname }}-{{ backup_timestamp }}.cfg"
     mode: put
-    username: backupuser
+    username: "{{ backup_sftp_user }}"
     password: "{{ backup_sftp_password }}"
-    host: 192.168.29.125
+    host: "{{ backup_sftp_host }}"
 
 - name: Cleanup local temp file
   delegate_to: localhost
   file:
-    path: "{{ local_tmp }}"
+    path: "{{ backup_local_tmp }}"
     state: absent

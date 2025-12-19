@@ -2,6 +2,8 @@
 - name: Deploy login banner to Cisco IOS
   hosts: tenants_test-env
   gather_facts: no
+  vars_files:
+    - "../group_vars/tenants_test-env.yml"
   roles:
     - role: config
       vars:

@@ -7,18 +7,12 @@
       dir_path: /tmp
 
 - name: Upload backups to SFTP
-  hosts: sftp-server
-  gather_facts: no
-  vars_files:
-    - "../host_vars/sftp-server.yml"
-  tasks:
-    - name: Upload config files
-      ansible.builtin.copy:
-        src: "/tmp/{{ inventory_hostname }}.cfg"
-        dest: "/ios/backups/{{ inventory_hostname }}.cfg"
-        mode: '0644'
-        directory_mode: '0755'
-      loop: "{{ groups['ansible_backup_hosts'] }}"
+  ansible.builtin.copy:
+    src: "/tmp/{{ inventory_hostname }}.cfg"
+    dest: "/ios/backups/{{ inventory_hostname }}.cfg"
+    mode: '0644'
+    directory_mode: '0755'
+  delegate_to: "{{ groups['sftp'][0] }}"
 
 - name: Cleanup local temp file
   delegate_to: localhost

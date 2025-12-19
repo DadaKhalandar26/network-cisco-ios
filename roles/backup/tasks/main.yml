@@ -7,8 +7,10 @@
       dir_path: /tmp
 
 - name: Upload backups to SFTP
-  hosts: sftp
+  hosts: sftp-server
   gather_facts: no
+  vars_files:
+    - "../host_vars/sftp-server.yml"
   tasks:
     - name: Upload config files
       ansible.builtin.copy:

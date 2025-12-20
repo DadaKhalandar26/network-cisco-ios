@@ -19,116 +19,61 @@ Supported capabilities:
 - Audit and diff capture for compliance
 
 # Repository Structure
-network-cisco-ios/
-
-├── README.md
-
-│
-
-├── inventories/
-
-│   ├── prod.yml
-
-│   └── lab.yml
-
-│
-
-├── playbooks/
-
-│   ├── ios_backup.yml
-
-│   ├── ios_restore.yml
-
-│   ├── vlan_apply.yml
-
-│   ├── vlan_rollback.yml
-
-│   ├── interface_apply.yml
-
-│   ├── interface_rollback.yml
-
-│   ├── drift_detect.yml
-
-│   ├── drift_remediate.yml
-
-│   └── compliance_check.yml
-
-│
-
-├── roles/
-
-│   ├── backup/
-
-│   │   └── tasks/main.yml
-
-│   │
-
-│   ├── rollback/
-
-│   │   └── tasks/main.yml
-
-│   │
-
-│   ├── vlan/
-
-│   │   └── tasks/
-
-│   │       ├── precheck.yml
-
-│   │       ├── apply.yml
-
-│   │       ├── verify.yml
-
-│   │       ├── rollback.yml
-
-│   │       └── audit.yml
-
-│   │
-
-│   ├── interface/
-
-│   │   └── tasks/
-
-│   │       ├── apply.yml
-
-│   │       └── rollback.yml
-
-│   │
-
-│   ├── drift/
-
-│   │   └── tasks/
-
-│   │       ├── capture.yml
-
-│   │       ├── compare.yml
-
-│   │       └── remediate.yml
-
-│   │
-
-│   └── compliance/
-
-│       └── tasks/
-
-│           ├── check.yml
-
-│           └── fix.yml
-
-│
-
-├── templates/
-
-│   ├── vlans.j2
-
-│   ├── interfaces.j2
-
-│   └── banner.j2
-
-│
-
-└── docs/
-
+    network-cisco-ios/
+    ├── README.md
+    │
+    ├── inventories/
+    │   ├── prod.yml
+    │   └── lab.yml
+    │
+    ├── playbooks/
+    │   ├── ios_backup.yml
+    │   ├── ios_restore.yml
+    │   ├── vlan_apply.yml
+    │   ├── vlan_rollback.yml
+    │   ├── interface_apply.yml
+    │   ├── interface_rollback.yml
+    │   ├── drift_detect.yml
+    │   ├── drift_remediate.yml
+    │   └── compliance_check.yml
+    │
+    ├── roles/
+    │   ├── backup/
+    │   │   └── tasks/main.yml
+    │   │
+    │   ├── rollback/
+    │   │   └── tasks/main.yml
+    │   │
+    │   ├── vlan/
+    │   │   └── tasks/
+    │   │       ├── precheck.yml
+    │   │       ├── apply.yml
+    │   │       ├── verify.yml
+    │   │       ├── rollback.yml
+    │   │       └── audit.yml
+    │   │
+    │   ├── interface/
+    │   │   └── tasks/
+    │   │       ├── apply.yml
+    │   │       └── rollback.yml
+    │   │
+    │   ├── drift/
+    │   │   └── tasks/
+    │   │       ├── capture.yml
+    │   │       ├── compare.yml
+    │   │       └── remediate.yml
+    │   │
+    │   └── compliance/
+    │       └── tasks/
+    │           ├── check.yml
+    │           └── fix.yml
+    │
+    ├── templates/
+    │   ├── vlans.j2
+    │   ├── interfaces.j2
+    │   └── banner.j2
+    │
+    └── docs/
     ├── awx-workflows.md\    
     ├── rollback-policy.md
     └── audit-policy.md

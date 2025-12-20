@@ -74,9 +74,9 @@ Supported capabilities:
     │   └── banner.j2
     │
     └── docs/
-    ├── awx-workflows.md\    
-    ├── rollback-policy.md
-    └── audit-policy.md
+        ├── awx-workflows.md\    
+        ├── rollback-policy.md
+        └── audit-policy.md
 
 # Design Principles
 - Playbooks define intent

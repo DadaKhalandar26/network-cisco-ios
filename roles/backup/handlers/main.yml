@@ -1,4 +1,0 @@
----
-- name: archive-backup
-  debug:
-    msg: "Archiving backup for {{ inventory_hostname }}"

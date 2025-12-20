@@ -36,6 +36,7 @@ Test-IOS-01-20251220-101001.cfg
 
 ## AWX / Ansible
 AWX or Ansible Automation Platform installed
+
 Execution Environment includes:
 - cisco.ios collection
 - expect module
@@ -45,6 +46,7 @@ Execution Environment includes:
 - ChrootDirectory configured
 - Writable directory inside chroot
 Example chroot configuration:
+
 ChrootDirectory /netbackups
 
 ## Credential Management in AWX
@@ -71,14 +73,18 @@ These credentials are used only for uploading backup files to the SFTP server.
 # Backup Workflow
 ### Step 1: Backup Running Configuration
 The running configuration is collected from each Cisco IOS device and stored temporarily on the AWX execution node.
+
 /tmp/<hostname>-<timestamp>.cfg
 
 ### Step 2: Upload Backup to SFTP Server
 The backup file is uploaded to the SFTP server using a non-interactive SFTP session.
+
 Target directory (inside SFTP session):
+
 /ios/backups/
 
 Mapped filesystem path:
+
 /netbackups/ios/backups/
 
 ### Step 3: Cleanup Temporary File
@@ -89,11 +95,16 @@ visit roles/backup/main.yml
 
 # Verification
 Verify on SFTP Server (Root User)
+
 ls -l /netbackups/ios/backups
+
 less /netbackups/ios/backups/Test-IOS-01-20251220-101001.cfg
+
 ## Verify via SFTP
 sftp backupuser@<server-ip>
+
 cd /ios/backups
+
 ls -l
 
 # Security Considerations
@@ -117,4 +128,5 @@ ls -l
 
 # Author
 Bandar Shaik Dada Khalandar
+
 Senior Network Engineer

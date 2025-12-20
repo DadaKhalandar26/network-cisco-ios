@@ -27,18 +27,6 @@ Each backup file is saved using the format:
 Example:
 Test-IOS-01-20251220-101001.cfg
 
-# Repository Structure
-.
-├── playbooks/
-│   └── backup.yml
-├── roles/
-│   └── backup/
-│       └── tasks/
-│           └── main.yml
-├── group_vars/
-│   └── all.yml
-└── README.md
-
 # Prerequisites
 ## Cisco IOS Devices
 - SSH enabled

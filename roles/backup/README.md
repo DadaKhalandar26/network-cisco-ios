@@ -21,8 +21,8 @@ Real storage path on SFTP server:
 /netbackups/ios/backups/
 
 # Backup File Naming Convention
--- Each backup file is saved using the format:
--- <inventory_hostname>-<backup_timestamp>.cfg
+Each backup file is saved using the format:
+<inventory_hostname>-<backup_timestamp>.cfg
 
 Example:
 Test-IOS-01-20251220-101001.cfg

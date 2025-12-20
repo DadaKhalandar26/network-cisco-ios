@@ -13,7 +13,7 @@
       sftp
       -o StrictHostKeyChecking=no
       -o UserKnownHostsFile=/dev/null
-      {{ sftp_username }}@{{ sftp_host }}:/ios/
+      {{ sftp_username }}@{{ sftp_host }}:/ios/backups/
     responses:
       (?i)password: "{{ sftp_password }}"
       sftp>:

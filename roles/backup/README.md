@@ -68,11 +68,11 @@ Create a custom credential type with the following injected variables:
 These credentials are used only for uploading backup files to the SFTP server.
 
 # Backup Workflow
-## Step 1: Backup Running Configuration
+### Step 1: Backup Running Configuration
 The running configuration is collected from each Cisco IOS device and stored temporarily on the AWX execution node.
 /tmp/<hostname>-<timestamp>.cfg
 
-## Step 2: Upload Backup to SFTP Server
+### Step 2: Upload Backup to SFTP Server
 The backup file is uploaded to the SFTP server using a non-interactive SFTP session.
 Target directory (inside SFTP session):
 /ios/backups/
@@ -80,7 +80,7 @@ Target directory (inside SFTP session):
 Mapped filesystem path:
 /netbackups/ios/backups/
 
-## Step 3: Cleanup Temporary File
+### Step 3: Cleanup Temporary File
 After successful upload, the temporary file is removed from the AWX execution node to prevent disk buildup.
 
 # Backup Task Implementation

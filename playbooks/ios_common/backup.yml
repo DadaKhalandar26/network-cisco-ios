@@ -9,10 +9,12 @@
     - "../host_vars/sftp-server.yml"
 
   vars:
-    ansible_connection: network_cli
     ansible_network_os: cisco.ios.ios
     timestamp: "{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"
     local_tmp: "/tmp/{{ inventory_hostname }}.cfg"
 
-  roles:
-      - backup
+  tasks:
+    - name: Run IOS common backup role
+      import_role:
+        name: backup
+        role_path: roles/ios_common

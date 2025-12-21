@@ -130,14 +130,16 @@ The design treats IOS-XE as a modern evolution of IOS, sharing a common automati
         └── .gitignore
 
 # Design Principles
-- Playbooks define intent, not device-specific logic
-- Roles encapsulate platform logic and execution steps
-- IOS and IOS-XE share a common automation baseline
-- IOS-XE–specific capabilities are explicitly isolated
-- AWX or Ansible Automation platform workflows enforce governance and approvals\
-- Rollback always restores a known-good state
-- Every change produces audit evidence
-This design aligns with enterprise automation standards, ITIL-based change management, and production operational safety.
+- **Intent-based automation** using Ansible playbooks
+- **Reusable, modular roles** aligned with Ansible best practices
+- **Controller-driven execution** using AWX or ansible Automation platform workflows
+- **Separation of intent, logic, and execution**
+- **Idempotent configuration management**
+- **Deterministic rollback and remediation paths**
+- **Source-of-Truth–aligned inventory design**
+- **Audit-first operational model**
+
+This design aligns with enterprise automation architectures, including controller-based automation, modular content design, and lifecycle-based operations.
 
 # Role Execution Model
 

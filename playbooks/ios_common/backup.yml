@@ -9,6 +9,8 @@
     - "../host_vars/sftp-server.yml"
 
   vars:
+    ansible_connection: network_cli
+    ansible_network_os: cisco.ios.ios
     timestamp: "{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"
     local_tmp: "/tmp/{{ inventory_hostname }}.cfg"
 

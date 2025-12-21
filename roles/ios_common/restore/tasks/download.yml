@@ -1,13 +1,4 @@
 ---
-# roles/ios_common/restore/tasks/download.yml
-
-- name: Ensure download directory exists on controller
-  file:
-    path: "{{ download_dest_dir | default('/tmp') }}"
-    state: directory
-    mode: "01777"
-  delegate_to: localhost
-
 - name: List backup files on SFTP server
   ansible.builtin.expect:
     command: >
@@ -21,22 +12,30 @@
   register: sftp_list
   delegate_to: localhost
 
+- name: Normalize stdout_lines structure (flatten nested lists)
+  set_fact:
+    sftp_raw_lines: "{{ (sftp_list.stdout_lines | default([]) | sum(start=[])) | list }}"
+
 - name: Flatten ls output into tokens (one filename per item)
   set_fact:
     sftp_tokens: >-
-      {{ (sftp_list.stdout_lines
-          | map('split')            # split each line into words/columns
+      {{ (sftp_raw_lines
+          | map('split')
           | list
-          | sum(start=[])           # flatten list of lists
-          | map('trim')             # remove surrounding whitespace
-          | reject('equalto','')    # drop empty tokens
+          | sum(start=[])
+          | map('trim')
+          | reject('equalto','')
           | list) }}
 
 - name: Keep only tokens that look like .cfg files
   set_fact:
     sftp_cfg_files: "{{ sftp_tokens | select('search','\\.cfg') | list }}"
 
-- name: Debug raw SFTP tokens
+- name: Debug raw SFTP lines
+  debug:
+    var: sftp_raw_lines
+
+- name: Debug tokens
   debug:
     var: sftp_tokens
 
@@ -52,6 +51,10 @@
   set_fact:
     latest_backup: >-
       {{ (matching_files | sort | last) if (matching_files | length) > 0 else (sftp_cfg_files | sort | last | default('')) }}
+
+- name: Debug selected backup
+  debug:
+    msg: "Selected latest backup: {{ latest_backup }}"
 
 - name: Fail if no backup exists
   fail:
@@ -76,7 +79,7 @@
   register: downloaded_stat
   delegate_to: localhost
 
-- name: Debug selected backup and download result
+- name: Debug download result
   debug:
     msg:
       - "selected_backup={{ latest_backup }}"

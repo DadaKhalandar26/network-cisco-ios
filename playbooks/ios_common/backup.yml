@@ -9,8 +9,5 @@
     timestamp: "{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"
     local_tmp: "/tmp/{{ inventory_hostname }}.cfg"
 
-  tasks:
-    - name: Run IOS common backup role
-      import_role:
-        name: backup
-        role_path: roles/ios_common
+  roles:
+    - ios_common.backup

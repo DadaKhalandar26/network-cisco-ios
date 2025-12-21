@@ -1,35 +1,55 @@
-- name: List hostname-specific files on SFTP
+---
+- name: List backup files on SFTP server
   ansible.builtin.expect:
     command: >
       sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-      {{ sftp_username }}@{{ sftp_host }}
+      {{ sftp_username }}@{{ sftp_host }}:/ios/backups/
     responses:
       (?i)password: "{{ sftp_password }}"
       sftp>:
         - "cd /ios/backups/"
-        - "ls {{ inventory_hostname }}*"
+        - "ls"
         - "bye"
   register: sftp_list
   delegate_to: localhost
 
-- name: Extract lines that contain .cfg
+- name: Keep only lines that end with .cfg
   set_fact:
-    sftp_cfg_lines: >-
-      {{ sftp_list.stdout_lines | select('search', '\\.cfg$') | list }}
+    sftp_cfg_lines: "{{ sftp_list.stdout_lines | select('search','\\.cfg$') | list }}"
 
-- name: Split lines into individual filenames and normalize
+- name: Flatten multi-column ls output into individual filenames
   set_fact:
-    sftp_cfg_files: >-
-      {{ (sftp_cfg_lines | map('split') | list | sum(start=[]) | map('trim') | reject('equalto', '') | list) }}
+    sftp_cfg_files: "{{ (sftp_cfg_lines | map('split') | list | sum(start=[]) | map('trim') | reject('equalto','') | list) }}"
 
-- name: Select latest backup matching this host (fallback to most recent overall)
+- name: Build normalized file objects
+  set_fact:
+    sftp_norm_files: "{{ sftp_norm_files | default([]) + [ {'orig': item, 'norm': (item | regex_replace('[^A-Za-z0-9]','') | lower)} ] }}"
+  loop: "{{ sftp_cfg_files }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Normalize inventory hostname
+  set_fact:
+    host_norm: "{{ inventory_hostname | regex_replace('[^A-Za-z0-9]','') | lower }}"
+
+- name: Find files whose normalized name contains normalized hostname
+  set_fact:
+    matching_files: >-
+      {{
+        (sftp_norm_files
+         | selectattr('norm','search', host_norm)
+         | map(attribute='orig')
+         | list)
+      }}
+
+- name: Select latest backup (hostname match first, fallback to most recent overall)
   set_fact:
     latest_backup: >-
       {{
         (
-          (sftp_cfg_files | select('search', inventory_hostname) | sort | list | last)
-          if (sftp_cfg_files | select('search', inventory_hostname) | list | length) > 0
-          else (sftp_cfg_files | sort | list | last | default(''))
+          (matching_files | sort | last)
+          if (matching_files | length) > 0
+          else (sftp_cfg_files | sort | last | default(''))
         )
       }}
 
@@ -38,19 +58,28 @@
     msg: "No backup found for {{ inventory_hostname }} on SFTP server; sftp_cfg_files={{ sftp_cfg_files }}"
   when: latest_backup == ""
 
-- name: Debug selected backup
-  debug:
-    msg: "Selected latest backup: {{ latest_backup }}"
-
 - name: Download latest backup file
   ansible.builtin.expect:
     command: >
       sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-      {{ sftp_username }}@{{ sftp_host }}
+      {{ sftp_username }}@{{ sftp_host }}:/ios/backups/
     responses:
       (?i)password: "{{ sftp_password }}"
       sftp>:
-        - "cd /ios/backups/"
-        - "get {{ latest_backup }} /tmp/{{ latest_backup }}"
+        - "get {{ latest_backup }} {{ download_dest_dir | default('/tmp') }}/{{ latest_backup }}"
         - "bye"
   delegate_to: localhost
+
+- name: Confirm file exists on controller
+  stat:
+    path: "{{ download_dest_dir | default('/tmp') }}/{{ latest_backup }}"
+  register: downloaded_stat
+  delegate_to: localhost
+
+- name: Debug selected backup and download result
+  debug:
+    msg:
+      - "selected_backup={{ latest_backup }}"
+      - "downloaded={{ downloaded_stat.stat.exists | default(false) }}"
+      - "path={{ download_dest_dir | default('/tmp') }}/{{ latest_backup }}"
+  when: downloaded_stat is defined

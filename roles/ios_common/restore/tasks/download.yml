@@ -15,10 +15,18 @@
   register: sftp_list
   delegate_to: localhost
 
+- name: Normalize SFTP file list into one filename per item
+  set_fact:
+    sftp_files: >-
+      {{ sftp_list.stdout_lines
+         | map('split')
+         | list
+         | sum(start=[]) }}
+
 - name: Extract latest backup filename
   set_fact:
     latest_backup: >-
-      {{ sftp_list.stdout_lines
+      {{ sftp_files
          | select('match', inventory_hostname)
          | select('match', '\\.cfg$')
          | list

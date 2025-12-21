@@ -2,7 +2,7 @@
 #roles/vlan/tasks/main.yml
 - name: Render VLAN config from template into a variable
   ansible.builtin.set_fact:
-    vlans_cfg: "{{ lookup('template', 'templates/vlans.j2') }}"
+    vlans_cfg: "{{ lookup('template', '../templates/vlans.j2') }}"
   vars:
     ansible_python_interpreter: "{{ ansible_python_interpreter | default(omit) }}"
 

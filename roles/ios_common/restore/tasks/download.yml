@@ -1,5 +1,26 @@
 ---
-- name: List backup files on SFTP server
+- name: Ensure download directory exists on controller
+  file:
+    path: "{{ download_dest_dir | default('/tmp') }}"
+    state: directory
+    mode: "01777"
+  delegate_to: localhost
+
+- name: List backup files on SFTP server using single-column ls
+  ansible.builtin.expect:
+    command: >
+      sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+      {{ sftp_username }}@{{ sftp_host }}:/ios/backups/
+    responses:
+      (?i)password: "{{ sftp_password }}"
+      sftp>:
+        - "ls -1"
+        - "bye"
+  register: sftp_list
+  delegate_to: localhost
+
+- name: If ls -1 returned nothing, fallback to plain ls
+  when: (sftp_list.stdout | default('') | trim) == ''
   ansible.builtin.expect:
     command: >
       sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
@@ -12,11 +33,15 @@
   register: sftp_list
   delegate_to: localhost
 
+- name: Debug raw sftp stdout (string)
+  debug:
+    var: sftp_list.stdout
+
 - name: Normalize stdout_lines structure (flatten nested lists)
   set_fact:
     sftp_raw_lines: "{{ (sftp_list.stdout_lines | default([]) | sum(start=[])) | list }}"
 
-- name: Flatten ls output into tokens (one filename per item)
+- name: Flatten lines into tokens (handles multi-column ls)
   set_fact:
     sftp_tokens: >-
       {{ (sftp_raw_lines
@@ -31,17 +56,12 @@
   set_fact:
     sftp_cfg_files: "{{ sftp_tokens | select('search','\\.cfg') | list }}"
 
-- name: Debug raw SFTP lines
+- name: Debug tokens and cfg files
   debug:
-    var: sftp_raw_lines
-
-- name: Debug tokens
-  debug:
-    var: sftp_tokens
-
-- name: Debug cfg files
-  debug:
-    var: sftp_cfg_files
+    msg:
+      - "raw_lines={{ sftp_raw_lines }}"
+      - "tokens={{ sftp_tokens }}"
+      - "cfg_files={{ sftp_cfg_files }}"
 
 - name: Find files that contain the inventory hostname
   set_fact:

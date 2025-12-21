@@ -13,45 +13,25 @@
   register: sftp_list
   delegate_to: localhost
 
-- name: Keep only lines that end with .cfg
+- name: Keep only lines that contain .cfg
   set_fact:
     sftp_cfg_lines: "{{ sftp_list.stdout_lines | select('search','\\.cfg$') | list }}"
+  register: sftp_cfg_lines
+  delegate_to: localhost
 
 - name: Flatten multi-column ls output into individual filenames
   set_fact:
-    sftp_cfg_files: "{{ (sftp_cfg_lines | map('split') | list | sum(start=[]) | map('trim') | reject('equalto','') | list) }}"
+    sftp_cfg_files: >-
+      {{ (sftp_cfg_lines | map('split') | list | sum(start=[]) | map('trim') | reject('equalto','') | list) }}
 
-- name: Build normalized file objects
+- name: Find files that contain the inventory hostname
   set_fact:
-    sftp_norm_files: "{{ sftp_norm_files | default([]) + [ {'orig': item, 'norm': (item | regex_replace('[^A-Za-z0-9]','') | lower)} ] }}"
-  loop: "{{ sftp_cfg_files }}"
-  loop_control:
-    label: "{{ item }}"
-
-- name: Normalize inventory hostname
-  set_fact:
-    host_norm: "{{ inventory_hostname | regex_replace('[^A-Za-z0-9]','') | lower }}"
-
-- name: Find files whose normalized name contains normalized hostname
-  set_fact:
-    matching_files: >-
-      {{
-        (sftp_norm_files
-         | selectattr('norm','search', host_norm)
-         | map(attribute='orig')
-         | list)
-      }}
+    matching_files: "{{ sftp_cfg_files | select('search', inventory_hostname) | list }}"
 
 - name: Select latest backup (hostname match first, fallback to most recent overall)
   set_fact:
     latest_backup: >-
-      {{
-        (
-          (matching_files | sort | last)
-          if (matching_files | length) > 0
-          else (sftp_cfg_files | sort | last | default(''))
-        )
-      }}
+      {{ (matching_files | sort | last) if (matching_files | length) > 0 else (sftp_cfg_files | sort | last | default('')) }}
 
 - name: Fail if no backup exists
   fail:
@@ -83,3 +63,4 @@
       - "downloaded={{ downloaded_stat.stat.exists | default(false) }}"
       - "path={{ download_dest_dir | default('/tmp') }}/{{ latest_backup }}"
   when: downloaded_stat is defined
+

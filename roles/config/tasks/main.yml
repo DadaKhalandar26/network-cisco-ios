@@ -2,7 +2,7 @@
 - name: Configure login banner using ios_banner
   cisco.ios.ios_banner:
     banner: login
-    text: "{{ lookup('file', './roles/templates/banner.j2') }}"
+    text: "{{ lookup('file', playbook_dir + '/templates/org_login_banner.j2') }}"
     state: present
     
 - name: Set hostname

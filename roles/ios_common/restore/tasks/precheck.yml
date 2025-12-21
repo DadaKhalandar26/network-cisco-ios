@@ -6,10 +6,11 @@
   failed_when: device_reachable.failed
 
 - name: Check SFTP server reachability
-  ansible.builtin.command: "ping -c 2 {{ sftp_host }}"
-  register: sftp_ping
+  ansible.builtin.wait_for:
+    host: "{{ sftp_host }}"
+    port: 22
+    timeout: 5
   delegate_to: localhost
-  failed_when: sftp_ping.rc != 0
 
 - name: Ensure /tmp directory exists on AWX node
   ansible.builtin.file:

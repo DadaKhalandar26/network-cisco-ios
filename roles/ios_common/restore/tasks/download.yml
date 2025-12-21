@@ -1,4 +1,13 @@
 ---
+# roles/ios_common/restore/tasks/download.yml
+
+- name: Ensure download directory exists on controller
+  file:
+    path: "{{ download_dest_dir | default('/tmp') }}"
+    state: directory
+    mode: "01777"
+  delegate_to: localhost
+
 - name: List backup files on SFTP server
   ansible.builtin.expect:
     command: >
@@ -7,22 +16,33 @@
     responses:
       (?i)password: "{{ sftp_password }}"
       sftp>:
-        - "cd /ios/backups/"
         - "ls"
         - "bye"
   register: sftp_list
   delegate_to: localhost
 
-- name: Keep only lines that contain .cfg
+- name: Flatten ls output into tokens (one filename per item)
   set_fact:
-    sftp_cfg_lines: "{{ sftp_list.stdout_lines | select('search','\\.cfg$') | list }}"
-  register: sftp_cfg_lines
-  delegate_to: localhost
+    sftp_tokens: >-
+      {{ (sftp_list.stdout_lines
+          | map('split')            # split each line into words/columns
+          | list
+          | sum(start=[])           # flatten list of lists
+          | map('trim')             # remove surrounding whitespace
+          | reject('equalto','')    # drop empty tokens
+          | list) }}
 
-- name: Flatten multi-column ls output into individual filenames
+- name: Keep only tokens that look like .cfg files
   set_fact:
-    sftp_cfg_files: >-
-      {{ (sftp_cfg_lines | map('split') | list | sum(start=[]) | map('trim') | reject('equalto','') | list) }}
+    sftp_cfg_files: "{{ sftp_tokens | select('search','\\.cfg') | list }}"
+
+- name: Debug raw SFTP tokens
+  debug:
+    var: sftp_tokens
+
+- name: Debug cfg files
+  debug:
+    var: sftp_cfg_files
 
 - name: Find files that contain the inventory hostname
   set_fact:
@@ -63,4 +83,3 @@
       - "downloaded={{ downloaded_stat.stat.exists | default(false) }}"
       - "path={{ download_dest_dir | default('/tmp') }}/{{ latest_backup }}"
   when: downloaded_stat is defined
-

@@ -10,4 +10,4 @@
     local_tmp: "/tmp/{{ inventory_hostname }}.cfg"
 
   roles:
-    - role: ios_common_backup
+    - role: ios_common/backup

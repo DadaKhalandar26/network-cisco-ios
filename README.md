@@ -19,67 +19,107 @@ Supported capabilities:
 - Audit and diff capture for compliance
 
 # Repository Structure
-    network-cisco-ios/
-    ├── README.md
-    │
-    ├── inventories/
-    │   ├── netbox_inventory.yml
-    │   └── example.yml
-    │
-    ├── playbooks/
-    │   ├── ios_backup.yml
-    │   ├── ios_restore.yml
-    │   ├── ios_banner.yml
-    │   ├── ios_baseline.yml
-    │   ├── vlan_apply.yml
-    │   ├── vlan_manula_rollback.yml
-    │   ├── interface_apply.yml
-    │   ├── interface_manual_rollback.yml
-    │   ├── drift_detect.yml
-    │   ├── drift_remediate.yml
-    │   └── compliance_check.yml
-    │
-    ├── roles/
-    │   ├── backup/
-    │   │   └── tasks/main.yml
-    │   │
-    │   ├── rollback/
-    │   │   └── tasks/main.yml
-    │   │
-    │   ├── vlan/
-    │   │   └── tasks/
-    │   │       ├── main.yml
-    │   │       ├── precheck.yml
-    │   │       ├── apply.yml
-    │   │       ├── verify.yml
-    │   │       ├── rollback.yml
-    │   │       └── audit.yml
-    │   │
-    │   ├── interface/
-    │   │   └── tasks/
-    │   │       ├── apply.yml
-    │   │       └── rollback.yml
-    │   │
-    │   ├── drift/
-    │   │   └── tasks/
-    │   │       ├── capture.yml
-    │   │       ├── compare.yml
-    │   │       └── remediate.yml
-    │   │
-    │   └── compliance/
-    │       └── tasks/
-    │           ├── check.yml
-    │           └── fix.yml
-    │
-    ├── templates/
-    │   ├── vlans.j2
-    │   ├── interfaces.j2
-    │   └── banner.j2
-    │
-    └── docs/
-        ├── awx-workflows.md\    
-        ├── rollback-policy.md
-        └── audit-policy.md
+        network-automation-cisco-ios/
+        ├── README.md
+        │
+        ├── inventories/
+        │   ├── netbox_inventory.yml
+        │   └── example.yml
+        │
+        ├── playbooks/
+        │   ├── ios_common/
+        │   │   ├── backup.yml
+        │   │   ├── restore.yml
+        │   │   ├── banner.yml
+        │   │   ├── baseline.yml
+        │   │   ├── vlan_apply.yml
+        │   │   ├── vlan_manual_rollback.yml
+        │   │   ├── interface_apply.yml
+        │   │   ├── interface_manual_rollback.yml
+        │   │   ├── drift_detect.yml
+        │   │   ├── drift_remediate.yml
+        │   │   └── compliance_check.yml
+        │   │
+        │   └── ios_xe_only/
+        │       ├── upgrade.yml
+        │       ├── install_mode.yml
+        │       ├── restconf_enable.yml
+        │       └── netconf_enable.yml
+        │
+        ├── roles/
+        │   ├── ios_common/
+        │   │   ├── backup/
+        │   │   │   └── tasks/main.yml
+        │   │   │
+        │   │   ├── vlan/
+        │   │   │   └── tasks/
+        │   │   │       ├── main.yml
+        │   │   │       ├── precheck.yml
+        │   │   │       ├── apply.yml
+        │   │   │       ├── verify.yml
+        │   │   │       ├── rollback.yml
+        │   │   │       └── audit.yml
+        │   │   │
+        │   │   ├── interface/
+        │   │   │   └── tasks/
+        │   │   │       ├── precheck.yml
+        │   │   │       ├── apply.yml
+        │   │   │       ├── verify.yml
+        │   │   │       └── rollback.yml
+        │   │   │
+        │   │   ├── drift/
+        │   │   │   └── tasks/
+        │   │   │       ├── capture.yml
+        │   │   │       ├── compare.yml
+        │   │   │       └── remediate.yml
+        │   │   │
+        │   │   └── compliance/
+        │   │       └── tasks/
+        │   │           ├── check.yml
+        │   │           └── fix.yml
+        │   │
+        │   ├── ios_xe_only/
+        │   │   ├── upgrade/
+        │   │   │   └── tasks/
+        │   │   │       ├── precheck.yml
+        │   │   │       ├── install.yml
+        │   │   │       ├── verify.yml
+        │   │   │       └── rollback.yml
+        │   │   │
+        │   │   ├── restconf/
+        │   │   └── netconf/
+        │   │
+        │   └── common/
+        │       ├── rollback/
+        │       │   └── tasks/main.yml
+        │       └── audit/
+        │           └── tasks/main.yml
+        │
+        ├── templates/
+        │   ├── vlans.j2
+        │   ├── interfaces.j2
+        │   └── banner.j2
+        │
+        ├── group_vars/
+        │   ├── ios.yml
+        │   └── ios_xe.yml
+        │
+        ├── vars/
+        │   ├── global.yml
+        │   ├── ios.yml
+        │   └── ios_xe.yml
+        │
+        ├── device_lists/
+        │   ├── change_1234.yml
+        │   └── rollback_1234.yml
+        │
+        ├── docs/
+        │   ├── awx-workflows.md
+        │   ├── rollback-policy.md
+        │   ├── audit-policy.md
+        │   └── ios-vs-ios-xe.md
+        │
+        └── .gitignore
 
 # Design Principles
 - Playbooks define intent

@@ -3,7 +3,7 @@
 - name: Deploy login banner to Cisco IOS
   hosts: Test-IOS-XE-ISRV
   connection: network_cli
-  network_os: cisco.ios.ios
+  ansible_network_os: cisco.ios.ios
   gather_facts: no
   
   roles:

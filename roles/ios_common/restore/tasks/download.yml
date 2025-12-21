@@ -1,10 +1,28 @@
----
-- name: List backup files on SFTP server
+# try pattern first
+- name: List hostname-specific files on SFTP
   ansible.builtin.expect:
     command: >
-      sftp
-      -o StrictHostKeyChecking=no
-      -o UserKnownHostsFile=/dev/null
+      sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+      {{ sftp_username }}@{{ sftp_host }}
+    responses:
+      (?i)password: "{{ sftp_password }}"
+      sftp>:
+        - "cd /ios/backups/"
+        - "ls {{ inventory_hostname }}*"
+        - "bye"
+  register: sftp_list
+  delegate_to: localhost
+
+# if no .cfg lines returned, fall back to full ls
+- name: Fallback to full listing if pattern returned nothing
+  set_fact:
+    need_full_list: "{{ (sftp_list.stdout_lines | select('search','\\.cfg$') | list) | length == 0 }}"
+
+- name: Full listing fallback
+  when: need_full_list
+  ansible.builtin.expect:
+    command: >
+      sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
       {{ sftp_username }}@{{ sftp_host }}
     responses:
       (?i)password: "{{ sftp_password }}"
@@ -15,18 +33,19 @@
   register: sftp_list
   delegate_to: localhost
 
-# Extract only .cfg files (ignore all other garbage)
-- name: Extract only .cfg files from SFTP output
+# normalize and split multi-column output, then filter .cfg and hostname
+- name: Build file list
   set_fact:
     sftp_cfg_files: >-
       {{
-        sftp_list.stdout_lines
-        | select('search', '\\.cfg$')
-        | list
+        (sftp_list.stdout_lines
+         | select('search','\\.cfg$')
+         | map('split')
+         | list
+         | sum(start=[]))
       }}
 
-# Select the latest backup for this device
-- name: Extract latest backup filename
+- name: Select latest backup for this device
   set_fact:
     latest_backup: >-
       {{
@@ -35,23 +54,3 @@
         | sort
         | last
       }}
-
-- name: Fail if no backup exists
-  fail:
-    msg: "No backup found for {{ inventory_hostname }} on SFTP server"
-  when: latest_backup is not defined or latest_backup == ""
-
-- name: Download latest backup file
-  ansible.builtin.expect:
-    command: >
-      sftp
-      -o StrictHostKeyChecking=no
-      -o UserKnownHostsFile=/dev/null
-      {{ sftp_username }}@{{ sftp_host }}
-    responses:
-      (?i)password: "{{ sftp_password }}"
-      sftp>:
-        - "cd /ios/backups/"
-        - "get {{ latest_backup }} /tmp/{{ latest_backup }}"
-        - "bye"
-  delegate_to: localhost

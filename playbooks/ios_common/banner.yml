@@ -1,7 +1,7 @@
 #Test Working
 ---
 - name: Deploy login banner to Cisco IOS
-  hosts: device_types_isrv-router
+  hosts: device_type_isrv-router
   gather_facts: no
   vars_files:
     - "../group_vars/tenants_test-env.yml"

@@ -65,5 +65,5 @@
           - "Backup retrieval and cleanup completed successfully."
           - "Host: {{ inventory_hostname }}"
           - "Latest backup file was: {{ latest_backup }}"
-          - "Temporary file removed from: {{ tmp_path }}"
+          - "Temporary file removed from: /tmp/"
 

@@ -14,7 +14,7 @@
 # ---------------------------------------------------------
 - name: List backup files on SFTP server (AWX-safe)
   ansible.builtin.shell: >
-    printf "cd {{ sftp_path | default('/ios/backups/{{ inventory_hostname}}') }}\nls -1\nbye\n" |
+    printf "cd {{ sftp_path | default('/ios/backups/') }}\nls -1\nbye\n" |
     sshpass -p '{{ sftp_password }}' sftp
     -oBatchMode=no
     -oStrictHostKeyChecking=no

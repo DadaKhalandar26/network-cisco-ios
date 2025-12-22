@@ -69,7 +69,7 @@
     matching_files: >-
       {{ sftp_cfg_files
          | select('search',
-                  '(?i)^' ~ host_prefix ~ '.*-[0-9]{8}-[0-9]{6}\\.cfg$')
+                  '(?i)^' ~ host_prefix ~ '-[0-9]{8}-[0-9]{6}\\.cfg$')
          | list }}
 
 - name: Debug matching files

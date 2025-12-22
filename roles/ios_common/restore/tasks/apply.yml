@@ -2,7 +2,7 @@
 - name: Upload backup file to device flash
   ansible.netcommon.net_put:
     src: "{{ backup_full_path }}"
-    dest: "flash:{{ backup_filename }}"
+    dest: "bootflash:/{{ backup_filename }}"
   vars:
     ansible_command_timeout: 180
 

@@ -1,9 +1,8 @@
 ---
-- name: Apply configuration restore
-  cisco.ios.ios_config:
-    src: "/tmp/{{ latest_backup }}"
-    replace: config
-  register: restore_result
+- name: Restore config using configure replace
+  cisco.ios.ios_command:
+    commands:
+      - "configure replace flash:{{ backup_filename }} force"
 
 - name: Save running-config to startup-config
   cisco.ios.ios_command:

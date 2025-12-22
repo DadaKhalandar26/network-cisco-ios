@@ -2,6 +2,10 @@
 - name: Pull latest backup for the target host
   hosts: Test-IOS-XE-ISRV
   gather_facts: false
+  connection: network_cli
+
+  vars:
+    ansible_network_os: cisco.ios.ios
 
   tasks:
     - name: Ensure local download directory exists

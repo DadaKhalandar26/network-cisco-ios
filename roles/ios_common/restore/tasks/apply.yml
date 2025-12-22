@@ -2,7 +2,7 @@
 # roles/ios_common/restore/tasks/apply.yml
 
 # ============================================================
-# STEP 0 — controller IP
+# STEP 0 — Manually set controller IP (AWX host)
 # ============================================================
 
 - name: Set controller_ip manually
@@ -10,33 +10,33 @@
     controller_ip: "192.168.29.51"
 
 # ============================================================
-# STEP 1 — Prepare HTTP-serving directory on controller
+# STEP 1 — Prepare HTTP directory on AWX host
 # ============================================================
 
-- name: Ensure HTTP directory exists on controller
+- name: Ensure /tmp exists on AWX host
   ansible.builtin.file:
     path: /tmp
     state: directory
     mode: "01777"
-  delegate_to: localhost
+  delegate_to: 192.168.29.51
 
-- name: Copy backup file into HTTP directory
+- name: Copy backup file into /tmp on AWX host
   ansible.builtin.copy:
     src: "{{ backup_full_path }}"
     dest: "/tmp/{{ backup_filename }}"
-  delegate_to: localhost
+  delegate_to: 192.168.29.51
 
 # ============================================================
-# STEP 2 — Start temporary HTTP server on controller
+# STEP 2 — Start temporary HTTP server on AWX host
 # ============================================================
 
-- name: Start temporary HTTP server on controller
+- name: Start temporary HTTP server on AWX host
   ansible.builtin.shell: |
     cd /tmp
     python3 -m http.server 8080 &
   async: 10
   poll: 0
-  delegate_to: localhost
+  delegate_to: 192.168.29.51
 
 # ============================================================
 # STEP 3 — Device pulls backup via HTTP to bootflash
@@ -82,10 +82,10 @@
     var: restore_output.stdout_lines
 
 # ============================================================
-# STEP 6 — Stop HTTP server (best-effort cleanup)
+# STEP 6 — Stop HTTP server on AWX host (cleanup)
 # ============================================================
 
-- name: Stop temporary HTTP server on controller
+- name: Stop temporary HTTP server on AWX host
   ansible.builtin.shell: "pkill -f 'python3 -m http.server'"
   ignore_errors: true
-  delegate_to: localhost
+  delegate_to: 192.168.29.51

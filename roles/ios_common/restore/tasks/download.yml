@@ -6,44 +6,34 @@
     mode: "01777"
   delegate_to: localhost
 
-- name: List backup files on SFTP server using single-column ls
-  ansible.builtin.expect:
-    command: >
-      sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-      {{ sftp_username }}@{{ sftp_host }}:/ios/backups/
-    responses:
-      (?i)password: "{{ sftp_password }}"
-      sftp>:
-        - "ls -1"
-        - "bye"
+# ---------------------------------------------------------
+# STEP 1 — LIST FILES (AWX-SAFE, NON-INTERACTIVE SFTP)
+# ---------------------------------------------------------
+
+- name: List backup files on SFTP server (AWX-safe batch mode)
+  ansible.builtin.command: >
+    bash -c "sshpass -p '{{ sftp_password }}'
+    sftp -oBatchMode=no -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null
+    {{ sftp_username }}@{{ sftp_host }} << 'EOF'
+    cd {{ sftp_path | default('/ios/backups/') }}
+    ls -1
+    bye
+EOF"
   register: sftp_list
   delegate_to: localhost
+  changed_when: false
 
-- name: If ls -1 returned nothing, fallback to plain ls
-  when: (sftp_list.stdout_lines | default([]) | length) == 0
-  ansible.builtin.expect:
-    command: >
-      sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-      {{ sftp_username }}@{{ sftp_host }}:/ios/backups/
-    responses:
-      (?i)password: "{{ sftp_password }}"
-      sftp>:
-        - "ls"
-        - "bye"
-  register: sftp_list
-  delegate_to: localhost
-
-- name: Debug raw sftp stdout_lines
+- name: Debug raw SFTP output
   debug:
-    var: sftp_list.results[0].stdout_lines
+    var: sftp_list.stdout_lines
 
-# -------------------------------
-# NORMALIZE OUTPUT
-# -------------------------------
+# ---------------------------------------------------------
+# STEP 2 — NORMALIZE OUTPUT
+# ---------------------------------------------------------
 
-- name: Flatten stdout_lines into a clean list
+- name: Flatten stdout_lines into clean list
   set_fact:
-    sftp_raw_lines: "{{ sftp_list.stdout_lines | default([]) | sum(start=[]) }}"
+    sftp_raw_lines: "{{ sftp_list.stdout_lines | default([]) | list }}"
 
 - name: Clean tokens (handles multi-column ls)
   set_fact:
@@ -67,9 +57,9 @@
       - "tokens={{ sftp_tokens }}"
       - "cfg_files={{ sftp_cfg_files }}"
 
-# -------------------------------
-# STRICT HOST FILTERING
-# -------------------------------
+# ---------------------------------------------------------
+# STEP 3 — STRICT HOST FILTERING
+# ---------------------------------------------------------
 
 - name: Find files that belong to this host (strict pattern)
   set_fact:
@@ -85,34 +75,39 @@
       - "Matching files for host={{ inventory_hostname }}"
       - "{{ matching_files }}"
 
+- name: Fail if no backup exists
+  fail:
+    msg: "No backup found for {{ inventory_hostname }} on SFTP server."
+  when: matching_files | length == 0
+
+# ---------------------------------------------------------
+# STEP 4 — SELECT LATEST BACKUP
+# ---------------------------------------------------------
+
 - name: Select latest backup
   set_fact:
-    latest_backup: "{{ matching_files | sort | last | default('') }}"
+    latest_backup: "{{ matching_files | sort | last }}"
 
 - name: Debug selected backup
   debug:
     msg: "Selected latest backup: {{ latest_backup }}"
 
-- name: Fail if no backup exists
-  fail:
-    msg: "No backup found for {{ inventory_hostname }} on SFTP server."
-  when: latest_backup == ""
+# ---------------------------------------------------------
+# STEP 5 — DOWNLOAD THE FILE
+# ---------------------------------------------------------
 
-# -------------------------------
-# DOWNLOAD
-# -------------------------------
-
-- name: Download latest backup file
-  ansible.builtin.expect:
-    command: >
-      sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
-      {{ sftp_username }}@{{ sftp_host }}:/ios/backups/
-    responses:
-      (?i)password: "{{ sftp_password }}"
-      sftp>:
-        - "get {{ latest_backup }} {{ download_dest_dir | default('/tmp') }}/{{ latest_backup }}"
-        - "bye"
+- name: Download latest backup file (AWX-safe batch mode)
+  ansible.builtin.command: >
+    bash -c "sshpass -p '{{ sftp_password }}'
+    sftp -oBatchMode=no -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null
+    {{ sftp_username }}@{{ sftp_host }} << 'EOF'
+    cd {{ sftp_path | default('/ios/backups/') }}
+    get {{ latest_backup }} {{ download_dest_dir | default('/tmp') }}/{{ latest_backup }}
+    bye
+EOF"
+  register: download_status
   delegate_to: localhost
+  changed_when: "'Fetching' in download_status.stdout"
 
 - name: Confirm file exists on controller
   stat:

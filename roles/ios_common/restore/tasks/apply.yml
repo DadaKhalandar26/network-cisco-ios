@@ -1,5 +1,4 @@
 ---
-# STEP 1 — Upload backup file to device flash
 - name: Upload backup file to device flash
   ansible.netcommon.net_put:
     src: "{{ backup_full_path }}"
@@ -7,7 +6,6 @@
   vars:
     ansible_command_timeout: 180
 
-# STEP 2 — Verify uploaded file exists
 - name: Verify uploaded file exists
   cisco.ios.ios_command:
     commands:
@@ -19,13 +17,11 @@
     msg: "Backup file {{ backup_filename }} not found on device flash!"
   when: "'No such file' in flash_check.stdout[0]"
 
-# STEP 3 — Restore configuration using configure replace
 - name: Restore config using configure replace
   cisco.ios.ios_command:
     commands:
       - "configure replace flash:{{ backup_filename }} force"
   register: restore_output
 
-# STEP 4 — Debug output
 - debug:
     var: restore_output.stdout_lines

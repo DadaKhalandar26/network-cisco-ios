@@ -9,7 +9,7 @@
 - name: Verify uploaded file exists
   cisco.ios.ios_command:
     commands:
-      - "dir flash:{{ backup_filename }}"
+      - "dir bootflash:/{{ backup_filename }}"
   register: flash_check
 
 - name: Fail if file not found on flash
@@ -20,7 +20,7 @@
 - name: Restore config using configure replace
   cisco.ios.ios_command:
     commands:
-      - "configure replace flash:{{ backup_filename }} force"
+      - "configure replace bootflash:/{{ backup_filename }} force"
   register: restore_output
 
 - debug:

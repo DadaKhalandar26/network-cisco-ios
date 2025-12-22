@@ -1,17 +1,27 @@
 ---
-- name: Set controller_ip
-  set_fact:
-    controller_ip: "192.168.29.51"
-# STEP 1 — Build HTTPS URL for the backup file
-- name: Build HTTPS URL for backup file
-  set_fact:
-    backup_https_url: "https://{{ controller_ip }}/files/{{ backup_filename }}"
+# ============================================================
+# STEP 1 — Copy backup file into Nginx HTTPS directory
+# ============================================================
+- name: Ensure Nginx HTTPS directory exists
+  ansible.builtin.file:
+    path: /tmp/backups
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
 
-# STEP 2 — Copy backup file to device flash using HTTPS
+- name: Place backup file in HTTPS directory
+  ansible.builtin.copy:
+    src: "{{ backup_full_path }}"
+    dest: "/tmp/backups/{{ backup_filename }}"
+  delegate_to: localhost
+
+# ============================================================
+# STEP 2 — Device pulls file via HTTPS (non-interactive)
+# ============================================================
 - name: Copy backup file to device flash using HTTPS
   cisco.ios.ios_command:
     commands:
-      - "copy {{ backup_https_url }} bootflash:{{ backup_filename }}"
+      - "copy https://{{ controller_ip }}/backups/{{ backup_filename }} bootflash:{{ backup_filename }} /noverify /quiet"
   vars:
     ansible_command_timeout: 300
   register: https_copy
@@ -19,7 +29,9 @@
 - debug:
     var: https_copy.stdout_lines
 
-# STEP 3 — Verify uploaded file exists
+# ============================================================
+# STEP 3 — Verify file exists on flash
+# ============================================================
 - name: Verify uploaded file exists
   cisco.ios.ios_command:
     commands:
@@ -31,7 +43,9 @@
     msg: "Backup file {{ backup_filename }} not found on device bootflash!"
   when: flash_check.stdout[0] is not search(backup_filename)
 
+# ============================================================
 # STEP 4 — Restore configuration using configure replace
+# ============================================================
 - name: Restore config using configure replace
   cisco.ios.ios_command:
     commands:

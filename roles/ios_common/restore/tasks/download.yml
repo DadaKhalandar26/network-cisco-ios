@@ -57,26 +57,28 @@
       - "cfg_files={{ sftp_cfg_files }}"
 
 # ---------------------------------------------------------
-# STEP 3 — RELAXED, CASE-INSENSITIVE HOST FILTERING
+# STEP 3 — CASE-INSENSITIVE, AWX-SAFE HOST FILTERING
 # ---------------------------------------------------------
 
-- name: Normalize hostname (strip FQDN)
+- name: Normalize hostname (strip FQDN + lowercase)
   set_fact:
     host_prefix: "{{ inventory_hostname.split('.')[0] | lower }}"
 
-- name: Find files that belong to this host (robust regex)
+- name: Convert cfg_files to dict list for safe filtering
+  set_fact:
+    cfg_dicts: "{{ sftp_cfg_files | map('lower') | map('community.general.dict_kv', 'name') | list }}"
+
+- name: Filter matching files (AWX-safe)
   set_fact:
     matching_files: >-
-      {{ sftp_cfg_files
-         | map('lower')
-         | select('regex_search', host_prefix ~ '-[0-9]{8}-[0-9]{6}\\.cfg')
+      {{ cfg_dicts
+         | selectattr('name', 'search', host_prefix ~ '-[0-9]{8}-[0-9]{6}\\.cfg')
+         | map(attribute='name')
          | list }}
 
 - name: Debug matching files
   debug:
-    msg:
-      - "Host prefix={{ host_prefix }}"
-      - "Matching files={{ matching_files }}"
+    var: matching_files
 
 - name: Fail if no backup exists
   fail:
@@ -96,7 +98,7 @@
     msg: "Selected latest backup: {{ latest_backup }}"
 
 # ---------------------------------------------------------
-# STEP 5 — DOWNLOAD THE FILE (NO HEREDOC)
+# STEP 5 — DOWNLOAD THE FILE (AWX-SAFE)
 # ---------------------------------------------------------
 
 - name: Download latest backup file (AWX-safe, no heredoc)

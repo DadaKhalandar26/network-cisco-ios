@@ -2,14 +2,14 @@
 - name: Upload backup file to device flash
   ansible.netcommon.net_put:
     src: "{{ backup_full_path }}"
-    dest: "bootflash:/{{ backup_filename }}"
+    dest: "bootflash:{{ backup_filename }}"
   vars:
     ansible_command_timeout: 180
 
 - name: Verify uploaded file exists
   cisco.ios.ios_command:
     commands:
-      - "dir bootflash:/{{ backup_filename }}"
+      - "dir bootflash:{{ backup_filename }}"
   register: flash_check
 
 - name: Fail if file not found on flash
@@ -20,7 +20,7 @@
 - name: Restore config using configure replace
   cisco.ios.ios_command:
     commands:
-      - "configure replace bootflash:/{{ backup_filename }} force"
+      - "configure replace bootflash:{{ backup_filename }} force"
   register: restore_output
 
 - debug:

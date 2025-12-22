@@ -62,14 +62,14 @@
 
 - name: Normalize hostname (strip FQDN)
   set_fact:
-    host_prefix: "{{ inventory_hostname.split('.')[0] }}"
+    host_prefix: "{{ inventory_hostname.split('.')[0] | lower }}"
 
-- name: Find files that belong to this host (case-insensitive)
+- name: Find files that belong to this host (robust regex)
   set_fact:
     matching_files: >-
       {{ sftp_cfg_files
-         | select('search',
-                  '(?i)^' ~ host_prefix ~ '-[0-9]{8}-[0-9]{6}\\.cfg$')
+         | map('lower')
+         | select('regex_search', host_prefix ~ '-[0-9]{8}-[0-9]{6}\\.cfg')
          | list }}
 
 - name: Debug matching files

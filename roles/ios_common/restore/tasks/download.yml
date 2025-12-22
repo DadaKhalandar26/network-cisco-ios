@@ -1,4 +1,7 @@
 ---
+# ---------------------------------------------------------
+# STEP 1 — Ensure download directory exists
+# ---------------------------------------------------------
 - name: Ensure download directory exists on controller
   file:
     path: "{{ download_dest_dir | default('/tmp') }}"
@@ -7,12 +10,11 @@
   delegate_to: localhost
 
 # ---------------------------------------------------------
-# STEP 1 — LIST FILES (AWX-SAFE, NO HEREDOC)
+# STEP 2 — List files from SFTP
 # ---------------------------------------------------------
-
-- name: List backup files on SFTP server (AWX-safe, no heredoc)
+- name: List backup files on SFTP server (AWX-safe)
   ansible.builtin.shell: >
-    printf "cd {{ sftp_path | default('/ios/backups/') }}\nls -1\nbye\n" |
+    printf "cd {{ sftp_path | default('/ios/backups/{{ inventory_hostname}}') }}\nls -1\nbye\n" |
     sshpass -p '{{ sftp_password }}' sftp
     -oBatchMode=no
     -oStrictHostKeyChecking=no
@@ -22,22 +24,20 @@
   delegate_to: localhost
   changed_when: false
 
-- name: Debug raw SFTP output
-  debug:
+- debug:
     var: sftp_list.stdout_lines
 
 # ---------------------------------------------------------
-# STEP 2 — NORMALIZE OUTPUT
+# STEP 3 — Extract clean .cfg filenames
 # ---------------------------------------------------------
-
-- name: Flatten stdout_lines into clean list
+- name: Flatten stdout_lines
   set_fact:
-    sftp_raw_lines: "{{ sftp_list.stdout_lines | default([]) | list }}"
+    sftp_raw: "{{ sftp_list.stdout_lines | default([]) | list }}"
 
-- name: Clean tokens (handles multi-column ls)
+- name: Tokenize output
   set_fact:
     sftp_tokens: >-
-      {{ (sftp_raw_lines
+      {{ (sftp_raw
           | map('split')
           | list
           | sum(start=[])
@@ -47,64 +47,62 @@
 
 - name: Keep only .cfg files
   set_fact:
-    sftp_cfg_files: "{{ sftp_tokens | select('search','\\.cfg$') | list }}"
+    cfg_files: "{{ sftp_tokens | select('search','\\.cfg$') | list }}"
 
-- name: Debug tokens and cfg files
-  debug:
-    msg:
-      - "raw_lines={{ sftp_raw_lines }}"
-      - "tokens={{ sftp_tokens }}"
-      - "cfg_files={{ sftp_cfg_files }}"
+- debug:
+    var: cfg_files
 
 # ---------------------------------------------------------
-# STEP 3 — CASE-INSENSITIVE, AWX-SAFE HOST FILTERING
+# STEP 4 — Case-insensitive hostname prefix
 # ---------------------------------------------------------
-
 - name: Normalize hostname (strip FQDN + lowercase)
   set_fact:
     host_prefix: "{{ inventory_hostname.split('.')[0] | lower }}"
 
-- name: Lowercase filenames for case-insensitive matching
+- name: Lowercase filenames
   set_fact:
-    cfg_lower: "{{ sftp_cfg_files | map('lower') | list }}"
+    cfg_lower: "{{ cfg_files | map('lower') | list }}"
 
-- name: Build matching_files using Jinja loop (AWX-proof)
+- debug:
+    var: cfg_lower
+
+# ---------------------------------------------------------
+# STEP 5 — AWX-PROOF FILTERING (NO JINJA FILTERS)
+# ---------------------------------------------------------
+- name: Initialize empty list for matching files
   set_fact:
-    matching_files: |
-      {% set out = [] %}
-      {% for item in cfg_lower %}
-      {%   if item.startswith(host_prefix + '-') and item.endswith('.cfg') %}
-      {%     do out.append(item) %}
-      {%   endif %}
-      {% endfor %}
-      {{ out }}
+    matching_files: []
 
-- name: Debug matching files
-  debug:
+- name: Append matching files (AWX-proof loop)
+  set_fact:
+    matching_files: "{{ matching_files + [ item ] }}"
+  loop: "{{ cfg_lower }}"
+  when:
+    - item.startswith(host_prefix + '-')
+    - item.endswith('.cfg')
+
+- debug:
     var: matching_files
 
-- name: Fail if no backup exists
+- name: Fail if no backup found
   fail:
-    msg: "No backup found for {{ inventory_hostname }} (prefix={{ host_prefix }}) on SFTP server."
+    msg: "No backup found for {{ inventory_hostname }} (prefix={{ host_prefix }})"
   when: matching_files | length == 0
 
 # ---------------------------------------------------------
-# STEP 4 — SELECT LATEST BACKUP
+# STEP 6 — Select latest backup
 # ---------------------------------------------------------
-
 - name: Select latest backup
   set_fact:
     latest_backup: "{{ matching_files | sort | last }}"
 
-- name: Debug selected backup
-  debug:
-    msg: "Selected latest backup: {{ latest_backup }}"
+- debug:
+    var: latest_backup
 
 # ---------------------------------------------------------
-# STEP 5 — DOWNLOAD THE FILE (AWX-SAFE)
+# STEP 7 — Download file
 # ---------------------------------------------------------
-
-- name: Download latest backup file (AWX-safe, no heredoc)
+- name: Download latest backup file
   ansible.builtin.shell: >
     printf "cd {{ sftp_path | default('/ios/backups/') }}\nget {{ latest_backup }} {{ download_dest_dir | default('/tmp') }}/{{ latest_backup }}\nbye\n" |
     sshpass -p '{{ sftp_password }}' sftp
@@ -116,16 +114,13 @@
   delegate_to: localhost
   changed_when: "'Fetching' in download_status.stdout"
 
-- name: Confirm file exists on controller
+- name: Confirm file exists
   stat:
     path: "{{ download_dest_dir | default('/tmp') }}/{{ latest_backup }}"
   register: downloaded_stat
   delegate_to: localhost
 
-- name: Debug download result
-  debug:
+- debug:
     msg:
-      - "selected_backup={{ latest_backup }}"
-      - "downloaded={{ downloaded_stat.stat.exists | default(false) }}"
-      - "path={{ download_dest_dir | default('/tmp') }}/{{ latest_backup }}"
-  when: downloaded_stat is defined
+      - "Downloaded: {{ downloaded_stat.stat.exists }}"
+      - "Path: {{ download_dest_dir | default('/tmp') }}/{{ latest_backup }}"

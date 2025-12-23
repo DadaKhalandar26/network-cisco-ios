@@ -11,7 +11,7 @@
         -o StrictHostKeyChecking=no
         -o UserKnownHostsFile=/dev/null
         {{ sftp_username }}@{{ sftp_host }}
-        "test -d /ios/backups/{{ inventory_hostname }} && echo present || echo missing"
+        "test -d /backups/{{ inventory_hostname }} && echo present || echo missing"
   delegate_to: "{{ sftp_delegate | default('localhost') }}"
   register: remote_dir_check
   changed_when: false
@@ -23,7 +23,7 @@
       sftp -o StrictHostKeyChecking=no
           -o UserKnownHostsFile=/dev/null
           {{ sftp_username }}@{{ sftp_host }}
-          "mkdir -p /ios/backups/{{ inventory_hostname }}"
+          "mkdir /backups/{{ inventory_hostname }}"
     responses:
       (?i)password: "{{ sftp_password }}"
   delegate_to: "{{ sftp_delegate | default('localhost') }}"
@@ -38,7 +38,7 @@
         -o StrictHostKeyChecking=no
         -o UserKnownHostsFile=/dev/null
         {{ sftp_username }}@{{ sftp_host }}
-        "test -d /ios/backups/{{ inventory_hostname }} && echo present || echo missing"
+        "test -d /backups/{{ inventory_hostname }} && echo present || echo missing"
   delegate_to: "{{ sftp_delegate | default('localhost') }}"
   register: remote_dir_check_final
   changed_when: false
@@ -47,7 +47,7 @@
 - name: Fail if remote backup directory still missing
   ansible.builtin.fail:
     msg: >
-      Remote directory /ios/backups/{{ inventory_hostname }}/
+      Remote directory /backups/{{ inventory_hostname }}/
       does not exist and could not be created on {{ sftp_host }}
   when: remote_dir_check_final.stdout is defined and
         remote_dir_check_final.stdout.find('present') == -1
@@ -57,7 +57,7 @@
     command: >
       sftp -o StrictHostKeyChecking=no
            -o UserKnownHostsFile=/dev/null
-           {{ sftp_username }}@{{ sftp_host }}:/ios/backups/{{ inventory_hostname }}/
+           {{ sftp_username }}@{{ sftp_host }}:/backups/{{ inventory_hostname }}/
     responses:
       (?i)password: "{{ sftp_password }}"
       sftp>:

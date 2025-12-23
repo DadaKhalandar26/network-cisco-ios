@@ -1,6 +1,6 @@
 ---
 - name: Backup Cisco IOS config to SFTP server
-  hosts: Test-IOS-XE-ISRV
+  hosts: Test-IOS-01
   gather_facts: no
   connection: network_cli
 

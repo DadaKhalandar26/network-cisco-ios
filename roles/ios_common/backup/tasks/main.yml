@@ -1,28 +1,15 @@
 ---
-- name: Backup running config locally on AWX node
-  cisco.ios.ios_config:
-    backup: yes
-    backup_options:
-      filename: "{{ inventory_hostname }}-{{ backup_timestamp }}.cfg"
-      dir_path: /tmp
-  register: backup_result
+- name: Precheck — Verify device reachability and prerequisites
+  import_tasks: precheck.yml
 
-- name: Upload config to SFTP server
-  ansible.builtin.expect:
-    command: >
-      sftp
-      -o StrictHostKeyChecking=no
-      -o UserKnownHostsFile=/dev/null
-      {{ sftp_username }}@{{ sftp_host }}:/ios/backups/{{ inventory_hostname }}/
-    responses:
-      (?i)password: "{{ sftp_password }}"
-      sftp>:
-        - "put {{ backup_result.backup_path }}"
-        - "bye"
-  delegate_to: localhost
+- name: Backup — Create local running-config backup on controller
+  import_tasks: backup.yml
 
-- name: Cleanup local backup file
-  ansible.builtin.file:
-    path: "{{ backup_result.backup_path }}"
-    state: absent
-  delegate_to: localhost
+- name: Upload — Ensure remote directory and upload backup to SFTP
+  import_tasks: upload.yml
+
+- name: Verify — Confirm backup presence on remote SFTP host
+  import_tasks: verify.yml
+
+- name: Cleanup — Remove temporary local files and stop helpers
+  import_tasks: cleanup.yml

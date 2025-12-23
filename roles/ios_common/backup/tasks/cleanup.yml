@@ -1,0 +1,7 @@
+---
+- name: Cleanup local backup file
+  ansible.builtin.file:
+    path: "{{ backup_result.backup_path }}"
+    state: absent
+  delegate_to: localhost
+  when: backup_result is defined and backup_result.backup_path is defined

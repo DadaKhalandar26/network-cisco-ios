@@ -1,0 +1,81 @@
+---
+- name: Create remote directory on SFTP server (best-effort)
+  ansible.builtin.shell: |
+    ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ sftp_username }}@{{ sftp_host }} "mkdir -p /ios/backups/{{ inventory_hostname }}"
+  delegate_to: localhost
+  ignore_errors: true
+
+- name: Upload config to SFTP server using expect
+  ansible.builtin.expect:
+    command: >-
+      sftp
+      -o StrictHostKeyChecking=no
+      -o UserKnownHostsFile=/dev/null
+      {{ sftp_username }}@{{ sftp_host }}:/ios/backups/{{ inventory_hostname }}/
+    responses:
+      (?i)password: "{{ sftp_password }}"
+      sftp>:
+        - "put {{ backup_result.backup_path }}"
+        - "bye"
+  delegate_to: localhost
+  register: sftp_result
+
+
+
+
+
+
+
+
+
+- name: Check if remote directory exists (key-based SSH)
+  ansible.builtin.shell: >
+    ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+    {{ sftp_username }}@{{ sftp_host }} "test -d /ios/backups/{{ inventory_hostname }} && echo present || echo missing"
+  delegate_to: "{{ sftp_delegate | default('localhost') }}"
+  register: remote_dir_check
+  changed_when: false
+  failed_when: false
+
+- name: Create remote directory using passworded SSH (expect) if key-based create failed
+  ansible.builtin.expect:
+    command: >
+      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+      {{ sftp_username }}@{{ sftp_host }} "mkdir -p /ios/backups/{{ inventory_hostname }}"
+    responses:
+      (?i)password: "{{ sftp_password }}"
+  delegate_to: "{{ sftp_delegate | default('localhost') }}"
+  when:
+    - remote_dir_check.stdout is defined and remote_dir_check.stdout.find('present') == -1
+    - mkdir_key_result is defined and mkdir_key_result.rc != 0
+  register: mkdir_expect_result
+  failed_when: mkdir_expect_result.rc != 0
+
+- name: Re-check remote directory exists after create attempts
+  ansible.builtin.shell: >
+    ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+    {{ sftp_username }}@{{ sftp_host }} "test -d /ios/backups/{{ inventory_hostname }} && echo present || echo missing"
+  delegate_to: "{{ sftp_delegate | default('localhost') }}"
+  register: remote_dir_check_final
+  changed_when: false
+  failed_when: false
+
+- name: Fail if remote directory still missing
+  ansible.builtin.fail:
+    msg: "Remote directory /ios/backups/{{ inventory_hostname }}/ does not exist and could not be created on {{ sftp_host }}"
+  when: remote_dir_check_final.stdout is defined and remote_dir_check_final.stdout.find('present') == -1
+
+- name: Upload config to SFTP server using expect (password fallback) if key-based sftp failed
+  ansible.builtin.expect:
+    command: >-
+      sftp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+      {{ sftp_username }}@{{ sftp_host }}:/ios/backups/{{ inventory_hostname }}/
+    responses:
+      (?i)password: "{{ sftp_password }}"
+      sftp>:
+        - "put {{ backup_result.backup_path }}"
+        - "bye"
+  delegate_to: "{{ sftp_delegate | default('localhost') }}"
+  when: sftp_key_result is defined and sftp_key_result.rc != 0
+  register: sftp_expect_result
+  failed_when: sftp_expect_result.rc != 0

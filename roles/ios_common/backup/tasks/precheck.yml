@@ -1,0 +1,16 @@
+---
+- name: Check device reachability
+  cisco.ios.ios_command:
+    commands:
+      - "show version"
+    retries: 3
+    interval: 2
+  register: reachability
+  failed_when: reachability is failed
+
+- name: Ensure /tmp exists on AWX host (where backups are stored temporarily)
+  ansible.builtin.file:
+    path: /tmp
+    state: directory
+    mode: "01777"
+  delegate_to: localhost

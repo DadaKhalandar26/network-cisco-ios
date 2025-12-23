@@ -7,7 +7,7 @@
 
 - name: Check if remote backup directory exists (key-based SSH)
   ansible.builtin.command: >
-    ssh -o BatchMode=yes
+    sftp -o BatchMode=yes
         -o StrictHostKeyChecking=no
         -o UserKnownHostsFile=/dev/null
         {{ sftp_username }}@{{ sftp_host }}
@@ -20,7 +20,7 @@
 - name: Create remote backup directory using password SSH (expect) if missing
   ansible.builtin.expect:
     command: >
-      ssh -o StrictHostKeyChecking=no
+      sftp -o StrictHostKeyChecking=no
           -o UserKnownHostsFile=/dev/null
           {{ sftp_username }}@{{ sftp_host }}
           "mkdir -p /ios/backups/{{ inventory_hostname }}"
@@ -34,7 +34,7 @@
 
 - name: Re-check remote backup directory exists
   ansible.builtin.command: >
-    ssh -o BatchMode=yes
+    sftp -o BatchMode=yes
         -o StrictHostKeyChecking=no
         -o UserKnownHostsFile=/dev/null
         {{ sftp_username }}@{{ sftp_host }}

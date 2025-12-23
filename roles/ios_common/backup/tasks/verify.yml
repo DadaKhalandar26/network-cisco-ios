@@ -17,6 +17,4 @@
 - name: Fail if remote file missing (optional)
   ansible.builtin.fail:
     msg: "Uploaded backup not found on SFTP server"
-  when:
-    - remote_check.stdout is defined
-    - "'present'" not in remote_check.stdout
+  when: remote_check.stdout is defined and ('present' not in remote_check.stdout)

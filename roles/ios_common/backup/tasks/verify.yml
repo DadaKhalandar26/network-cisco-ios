@@ -8,7 +8,7 @@
     sftp -o StrictHostKeyChecking=no
         -o UserKnownHostsFile=/dev/null
         {{ sftp_username }}@{{ sftp_host }}
-        "test -f /ios/backups/{{ inventory_hostname }}/{{ backup_result.backup_path | basename }} && echo present || echo missing"
+        "ls /ios/backups/{{ inventory_hostname }}/{{ backup_result.backup_path | basename }} && echo present || echo missing"
   delegate_to: localhost
   register: remote_check
   changed_when: false

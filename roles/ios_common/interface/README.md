@@ -27,9 +27,16 @@ The role ensures that interface configuration on devices remains aligned with th
 
 ## Role Structure
 
+    roles/
+    └── ios_common/
+        └── interface/
+            ├── README.md
+            └── tasks/
+                ├── precheck.yml
+                ├── apply.yml
+                ├── verify.yml
+                └── rollback.yml
 
-
----
 
 ## Task Details
 
@@ -95,29 +102,28 @@ This role expects interface intent to be supplied by **NetBox Config Contexts** 
 ### Example NetBox Config Context (JSON)
 
 ```json
-{
-  "interface_defaults": {
-    "enabled": false,
-    "description": "Unused - Admin Down"
-  },
-  "interfaces": [
-    {
-      "name": "GigabitEthernet1",
-      "description": "Primary active interface",
-      "enabled": true,
-      "mode": "routed",
-      "mtu": 1500,
-      "speed": "auto",
-      "duplex": "auto",
-      "logging_event_link": true,
-      "ipv4": {
-        "address": "192.168.29.4",
-        "mask": "255.255.255.0"
+  {
+    "interface_defaults": {
+      "enabled": false,
+      "description": "Unused - Admin Down"
+    },
+    "interfaces": [
+      {
+        "name": "GigabitEthernet1",
+        "description": "Primary active interface",
+        "enabled": true,
+        "mode": "routed",
+        "mtu": 1500,
+        "speed": "auto",
+        "duplex": "auto",
+        "logging_event_link": true,
+        "ipv4": {
+          "address": "192.168.29.4",
+          "mask": "255.255.255.0"
+        }
       }
-    }
-  ]
-}
-
+    ]
+  }
 
 # Variables
 
@@ -128,21 +134,22 @@ This role expects interface intent to be supplied by **NetBox Config Contexts** 
 | `config_context`     | Raw NetBox inventory data (normalized internally) |
 
 
-Supported Platforms
+#### Supported Platforms
 Cisco IOS
 Cisco IOS-XE
 
 Example Playbook
-- name: Apply interface configuration
-  hosts: ios_xe_devices
-  gather_facts: no
-  connection: network_cli
 
-  roles:
-    - role: ios_common/interface
-      tags: [interface]
+    - name: Apply interface configuration
+      hosts: ios_xe_devices
+      gather_facts: no
+      connection: network_cli
 
-AWX / AAP Usage
+      roles:
+        - role: ios_common/interface
+          tags: [interface]
+
+## AWX / AAP Usage
 
 Recommended usage with AWX or Ansible Automation Platform:
 
@@ -174,7 +181,7 @@ Avoid using local_context_data; use merged config_context
 
 Treat NetBox as the single source of interface intent
 
-Future Improvements
+#### Future Improvements
 
 SVI (VLAN interface) configuration support
 
@@ -184,7 +191,3 @@ Extended platform support
 
 Integration with approval-based AWX workflows
 
-Maintainer
-
-Network Automation Core – IOS / IOS-XE
-Compatible with AWX and Ansible Automation Platform.

@@ -1,0 +1,48 @@
+---
+- name: Apply interface intent (enterprise-grade)
+  cisco.ios.ios_config:
+    parents: "interface {{ item.name }}"
+    lines: |
+      {{
+        [
+          # Description
+          ('description ' ~ item.description)
+            if item.description is defined else omit,
+
+          # Admin state
+          ('no shutdown' if item.enabled | default(false) else 'shutdown'),
+
+          # MTU
+          ('mtu ' ~ item.mtu)
+            if item.mtu is defined else omit,
+
+          # Speed
+          ('speed ' ~ item.speed)
+            if item.speed is defined else omit,
+
+          # Duplex
+          ('duplex ' ~ item.duplex)
+            if item.duplex is defined else omit,
+
+          # Routed vs switched mode
+          ('no switchport' if item.mode | default('routed') == 'routed' else 'switchport'),
+
+          # VRF
+          ('vrf forwarding ' ~ item.vrf)
+            if item.vrf is defined else omit,
+
+          # IPv4 address
+          ('ip address ' ~ item.ipv4.address ~ ' ' ~ item.ipv4.mask)
+            if item.ipv4 is defined else omit,
+
+          # Link-status logging
+          ('logging event link-status'
+            if item.logging_event_link | default(false) else omit)
+        ]
+        | reject('equalto', omit)
+        | list
+      }}
+  loop: "{{ interfaces }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: apply_result

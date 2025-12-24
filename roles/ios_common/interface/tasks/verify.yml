@@ -1,0 +1,15 @@
+---
+- name: Verify interface operational status
+  cisco.ios.ios_command:
+    commands:
+      - "show interface {{ item.name }} status"
+      - "show interface {{ item.name }} description"
+      - "show interface {{ item.name }} | include MTU|line protocol"
+  loop: "{{ interfaces }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: verify_output
+
+- name: Display verification output
+  ansible.builtin.debug:
+    var: verify_output.results

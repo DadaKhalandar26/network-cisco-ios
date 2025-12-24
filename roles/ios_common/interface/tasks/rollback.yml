@@ -1,0 +1,8 @@
+---
+- name: Rollback interface configuration
+  cisco.ios.ios_config:
+    parents: "interface {{ item.item.name }}"
+    lines: "{{ item.stdout_lines }}"
+  loop: "{{ precheck_running_config.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"

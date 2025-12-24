@@ -1,0 +1,17 @@
+---
+- name: Assert interface intent is present
+  ansible.builtin.assert:
+    that:
+      - interfaces is defined
+      - interfaces | length > 0
+    fail_msg: "No interface intent found from NetBox"
+    success_msg: "Interface intent loaded from NetBox"
+
+- name: Capture current running config (for rollback)
+  cisco.ios.ios_command:
+    commands:
+      - "show running-config interface {{ item.name }}"
+  loop: "{{ interfaces }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: precheck_running_config

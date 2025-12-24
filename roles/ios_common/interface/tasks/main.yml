@@ -1,0 +1,12 @@
+- name: Prechecks before interface apply
+  import_tasks: precheck.yml
+
+- name: Apply interface configuration intent
+  import_tasks: apply.yml
+
+- name: Verify interface configuration
+  import_tasks: verify.yml
+
+- name: Rollback if verification failed
+  import_tasks: rollback.yml
+  when: verify_failed | default(false)

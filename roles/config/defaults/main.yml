@@ -1,4 +1,0 @@
----
-domain_name: network-automation-core.com
-syslog_server: 10.10.10.1
-ntp_server: 10.101.10.1

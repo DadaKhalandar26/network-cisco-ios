@@ -1,0 +1,8 @@
+- name: Interface enforcement
+  hosts: Test-IOS-XE-ISRV
+  gather_facts: no
+  connection: network_cli
+
+  roles:
+    - role: interface
+      tags: [interface]

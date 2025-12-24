@@ -101,28 +101,28 @@ This role expects interface intent to be supplied by **NetBox Config Contexts** 
 
 ### Example NetBox Config Context (JSON)
 
-  {
-    "interface_defaults": {
-      "enabled": false,
-      "description": "Unused - Admin Down"
-    },
-    "interfaces": [
-      {
-        "name": "GigabitEthernet1",
-        "description": "Primary active interface",
-        "enabled": true,
-        "mode": "routed",
-        "mtu": 1500,
-        "speed": "auto",
-        "duplex": "auto",
-        "logging_event_link": true,
-        "ipv4": {
-          "address": "192.168.29.4",
-          "mask": "255.255.255.0"
+    {
+      "interface_defaults": {
+        "enabled": false,
+        "description": "Unused - Admin Down"
+      },
+      "interfaces": [
+        {
+          "name": "GigabitEthernet1",
+          "description": "Primary active interface",
+          "enabled": true,
+          "mode": "routed",
+          "mtu": 1500,
+          "speed": "auto",
+          "duplex": "auto",
+          "logging_event_link": true,
+          "ipv4": {
+            "address": "192.168.29.4",
+            "mask": "255.255.255.0"
+          }
         }
-      }
-    ]
-  }
+      ]
+    }
 
 # Variables
 

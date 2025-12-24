@@ -101,7 +101,6 @@ This role expects interface intent to be supplied by **NetBox Config Contexts** 
 
 ### Example NetBox Config Context (JSON)
 
-```json
   {
     "interface_defaults": {
       "enabled": false,

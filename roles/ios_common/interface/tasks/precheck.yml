@@ -1,8 +1,12 @@
 ---
+- name: Normalize NetBox config context
+  ansible.builtin.set_fact:
+    interface_defaults: "{{ config_context[0].interface_defaults | default({}) }}"
+    interfaces: "{{ config_context[0].interfaces | default([]) }}"
+
 - name: Assert interface intent is present
   ansible.builtin.assert:
     that:
-      - interfaces is defined
       - interfaces | length > 0
     fail_msg: "No interface intent found from NetBox"
     success_msg: "Interface intent loaded from NetBox"
@@ -12,6 +16,4 @@
     commands:
       - "show running-config interface {{ item.name }}"
   loop: "{{ interfaces }}"
-  loop_control:
-    label: "{{ item.name }}"
   register: precheck_running_config

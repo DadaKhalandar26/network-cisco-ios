@@ -150,35 +150,22 @@ Example Playbook
 
 ## AWX / AAP Usage
 
-Recommended usage with AWX or Ansible Automation Platform:
+#### Recommended usage with AWX or Ansible Automation Platform:
+- Inventory sourced from NetBox
+- config_context: true enabled in inventory plugin
+- Job templates scoped using:
+- platforms
+- device roles
+- tags
+- Optional use of check mode before applying changes
+- Rollback executed via workflows if required
 
-Inventory sourced from NetBox
-
-config_context: true enabled in inventory plugin
-
-Job templates scoped using:
-
-platforms
-
-device roles
-
-tags
-
-Optional use of check mode before applying changes
-
-Rollback executed via workflows if required
-
-Notes & Best Practices
-
-Do not store CLI commands in NetBox
-
-Do not hardcode interface configuration in playbooks
-
-Always run precheck.yml before applying changes
-
-Avoid using local_context_data; use merged config_context
-
-Treat NetBox as the single source of interface intent
+## Notes & Best Practices
+- Do not store CLI commands in NetBox
+- Do not hardcode interface configuration in playbooks
+- Always run precheck.yml before applying changes
+- Avoid using local_context_data; use merged config_context
+- Treat NetBox as the single source of interface intent
 
 #### Future Improvements
 
@@ -189,4 +176,5 @@ Drift detection and compliance checks
 Extended platform support
 
 Integration with approval-based AWX workflows
+
 

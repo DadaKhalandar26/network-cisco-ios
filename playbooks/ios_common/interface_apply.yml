@@ -4,5 +4,5 @@
   connection: network_cli
 
   roles:
-    - role: interface
+    - role: ios_common/interface
       tags: [interface]

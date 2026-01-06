@@ -28,6 +28,7 @@
         | reject('equalto', omit)
         | list
       }}
+    save_when: modified
   loop: "{{ interfaces }}"
   loop_control:
     label: "{{ item.name }}"

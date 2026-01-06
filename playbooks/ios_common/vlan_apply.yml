@@ -8,7 +8,7 @@
     - "../host_vars/{{ inventory_hostname }}.yml"
   
   roles:
-    - role: vlans
+    - role: ios_common/vlan
       vars:
         template_file: vlans.j2
         commit: true

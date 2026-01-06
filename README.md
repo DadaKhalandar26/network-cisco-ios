@@ -201,6 +201,10 @@ Example
 - Ansible Automation Platform
 - Cisco IOS and IOS-XE devices (SSH / network_cli)
 
+# Topology
+
+![alt text](image.png)
+
 # Intended Audience
 - Network Engineers
 - Automation Engineers

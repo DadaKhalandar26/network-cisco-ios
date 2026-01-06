@@ -25,5 +25,5 @@ It is designed to validate Cisco IOS automation playbooks for connectivity, mana
 | ------------------ | --------------------------- |
 | DMARC Point        | Internet edge router        |
 | IN-HYD-CD01 / CD02 | Core / Distribution routers |
-| IN-HYD-UA01 / UA02 | User / Access routers       |
+| IN-HYD-UA01 / UA02 | User / Access switches      |
 | Out-of-Band        | Management aggregation      |

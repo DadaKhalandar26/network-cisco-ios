@@ -1,6 +1,6 @@
 # Sample Topology Test (CML)
 
-![alt text](image.png)
+![alt text](image-1.png)
 
 ### Topology Overview
 
